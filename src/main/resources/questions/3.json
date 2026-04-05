@@ -1,0 +1,407 @@
+[
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Coordinator Architecture",
+    "type": "SINGLE_CHOICE",
+    "text": "A colleague suggests having the document analysis agent send its output directly to the synthesis agent instead of routing through the coordinator. What is the main advantage of keeping the coordinator as the central hub for all subagent communication?",
+    "explanation": "Keeping the coordinator as the hub preserves centralized control over communication. It can monitor all subagent interactions, enforce consistent error handling, and control what information each subagent receives, which improves reliability and observability.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "The coordinator can observe all interactions, handle errors consistently, and decide what information each subagent should receive.",
+        "correct": true
+      },
+      {
+        "text": "Routing through the coordinator enables automatic retry logic that direct agent-to-agent calls cannot support.",
+        "correct": false
+      },
+      {
+        "text": "The coordinator batches multiple subagent requests together, reducing the total number of API calls and overall latency.",
+        "correct": false
+      },
+      {
+        "text": "Subagents operate with isolated memory, and direct communication would require complex serialization that only the coordinator can perform.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Tool Routing",
+    "type": "SINGLE_CHOICE",
+    "text": "Production logs reveal a consistent pattern: requests to \"analyze the quarterly report I uploaded\" are routed to the web search agent 45% of the time instead of the document analysis agent. Examining the tool definitions, you find the web search agent has an analyze_content tool described as \"analyzes content and extracts key information,\" while the document analysis agent has an analyze_document tool described as \"analyzes documents and extracts key information.\" How should you address this misrouting?",
+    "explanation": "The root problem is overlapping tool semantics. Renaming the web search tool and narrowing its description makes the distinction clearer, reducing ambiguity between document analysis and web retrieval.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add few-shot examples to the coordinator's prompt showing correct routing: \"User uploads quarterly report → document analysis agent\" and \"User asks about a webpage → web search agent.\"",
+        "correct": false
+      },
+      {
+        "text": "Add a pre-routing classifier that determines whether the user is referencing uploaded files or web content before the coordinator makes delegation decisions.",
+        "correct": false
+      },
+      {
+        "text": "Expand the document analysis tool's description to include example use cases like \"Use for uploaded PDFs, Word documents, and spreadsheets\" while leaving the web search tool unchanged.",
+        "correct": false
+      },
+      {
+        "text": "Rename the web search tool to extract_web_results and update its description to \"processes and returns information retrieved from web searches and URLs.\"",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Tool Scope Control",
+    "type": "SINGLE_CHOICE",
+    "text": "When designing the system, you gave the document analysis agent access to a general-purpose fetch_url tool so it could load documents from URLs. Production logs reveal this agent now frequently fetches search engine result pages to conduct ad-hoc web searches—behavior that should route through the web search agent. This causes inconsistent results. What's the most effective fix?",
+    "explanation": "The problem comes from giving the document agent a tool that is too broad. Replacing it with a specialized load_document tool that validates document URLs constrains behavior to the intended task and prevents it from performing ad-hoc web search.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Replace fetch_url with a load_document tool that validates URLs point to document formats.",
+        "correct": true
+      },
+      {
+        "text": "Add instructions to the document analysis agent's prompt clarifying it should only use fetch_url for loading document URLs, not searching.",
+        "correct": false
+      },
+      {
+        "text": "Implement filtering that blocks fetch_url calls to known search engine domains while allowing other URLs.",
+        "correct": false
+      },
+      {
+        "text": "Remove fetch_url from the document analysis agent and route all URL loading through the coordinator to the web search agent.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Long-Context Structuring",
+    "type": "SINGLE_CHOICE",
+    "text": "Production monitoring reveals inconsistent synthesis quality. When aggregated results total ~75K tokens, the synthesis agent reliably cites information from the first 15K tokens and the final 10K tokens, but frequently omits critical findings that appear in the middle 50K tokens. How should you restructure the aggregated input?",
+    "explanation": "This is a classic lost-in-the-middle problem. Putting a concise key findings summary up front and using explicit section headers makes the most important information easier for the synthesis agent to locate and use consistently.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Stream subagent results to the synthesis agent incrementally, processing web search results first to completion before introducing document analysis findings.",
+        "correct": false
+      },
+      {
+        "text": "Place a key findings summary at the beginning of the aggregated input and organize detailed results with explicit section headers for easier navigation.",
+        "correct": true
+      },
+      {
+        "text": "Implement rotation that alternates which subagent's results appear first across different research tasks, ensuring both sources receive primacy positioning equally over time.",
+        "correct": false
+      },
+      {
+        "text": "Summarize all subagent outputs to under 20K tokens total before aggregation, ensuring content stays within the model's reliable processing range.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Conflicting Sources",
+    "type": "SINGLE_CHOICE",
+    "text": "The document analysis agent discovers that two credible sources contain directly conflicting statistics on a key metric: one government report states 40% growth while an industry analysis states 12% growth. Both sources appear legitimate and the discrepancy could significantly affect the research conclusions. What's the most effective way for the document analysis agent to handle this?",
+    "explanation": "The document analysis agent should preserve both facts, explicitly mark the conflict, and provide source attribution rather than resolving it itself. This gives the coordinator the information needed to decide how to reconcile the discrepancy.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Halt analysis and escalate to the coordinator immediately, asking it to determine which source is authoritative before the agent continues processing remaining documents.",
+        "correct": false
+      },
+      {
+        "text": "Complete the document analysis with both figures included, explicitly annotate the conflict with source attribution, and let the coordinator decide how to reconcile before passing to synthesis.",
+        "correct": true
+      },
+      {
+        "text": "Include both figures in the analysis output without flagging them as conflicting, allowing the synthesis agent to determine which to use based on the broader research context.",
+        "correct": false
+      },
+      {
+        "text": "Apply source credibility heuristics to select the most likely accurate figure, complete the analysis using that value, and include a footnote mentioning the discrepancy.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Partial Failure Handling",
+    "type": "SINGLE_CHOICE",
+    "text": "The web search subagent returns results for only 3 of 5 requested source categories. The synthesis subagent must now produce a findings summary from this mixed-quality input. What's the most effective error propagation strategy?",
+    "explanation": "The best approach is to proceed with synthesis while making coverage gaps explicit. This preserves useful findings without hiding missing source categories, allowing downstream users to understand where conclusions are strong or incomplete.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Have the synthesis subagent request the coordinator retry the timed-out sources with extended timeouts before proceeding, ensuring complete data coverage before synthesis begins.",
+        "correct": false
+      },
+      {
+        "text": "Proceed with synthesis using only the successful sources, generating output without indicating which data was unavailable.",
+        "correct": false
+      },
+      {
+        "text": "Structure the synthesis output with coverage annotations indicating which findings are well-supported versus which topic areas have gaps due to unavailable sources.",
+        "correct": true
+      },
+      {
+        "text": "Have the synthesis subagent return an error to the coordinator indicating incomplete upstream data, triggering a full retry or task failure.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Task Partitioning",
+    "type": "SINGLE_CHOICE",
+    "text": "When researching a broad topic, you observe that the web search agent and document analysis agent are both investigating the same subtopics, resulting in significant overlap in their findings. Token usage has nearly doubled without proportionally increasing the breadth or depth of research coverage. What's the most effective way to address this?",
+    "explanation": "The coordinator should partition the research space before delegating. Assigning different subtopics or source types to each agent reduces overlap, improves coverage, and avoids wasting tokens on redundant work.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Allow both agents to complete their parallel work, then have the coordinator deduplicate overlapping findings before passing to the synthesis agent.",
+        "correct": false
+      },
+      {
+        "text": "Have the coordinator explicitly partition the research space before delegation, assigning distinct subtopics or source types to each agent.",
+        "correct": true
+      },
+      {
+        "text": "Convert to sequential execution where document analysis runs only after web search completes, using the web search findings as context to avoid duplication.",
+        "correct": false
+      },
+      {
+        "text": "Implement a shared state mechanism where agents log their current focus area, allowing other agents to dynamically avoid duplicating work in progress.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Task Decomposition",
+    "type": "SINGLE_CHOICE",
+    "text": "After running the system on the topic \"impact of AI on creative industries,\" you observe that each subagent completes successfully, but the final reports cover only visual arts, completely missing music, writing, and film production. What is the most likely root cause?",
+    "explanation": "The coordinator decomposed the task too narrowly into only visual-art-related subtasks. Even perfect downstream execution cannot recover from an incomplete or biased initial decomposition.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "The web search agent's queries are not comprehensive enough and need to be expanded to cover more creative industry sectors.",
+        "correct": false
+      },
+      {
+        "text": "The document analysis agent is filtering out sources related to non-visual creative industries due to overly restrictive relevance criteria.",
+        "correct": false
+      },
+      {
+        "text": "The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives from other agents.",
+        "correct": false
+      },
+      {
+        "text": "The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Scoped Verification",
+    "type": "SINGLE_CHOICE",
+    "text": "During testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. This adds 2-3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks while 15% require deeper investigation. What's the most effective approach to reduce overhead while maintaining system reliability?",
+    "explanation": "A scoped verify_fact tool lets the synthesis agent handle common simple checks directly, cutting round trips and latency. More complex verification still routes through the coordinator and web search agent, preserving reliability for harder cases.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator.",
+        "correct": false
+      },
+      {
+        "text": "Have the web search agent proactively cache extra context around each source during initial research, anticipating what the synthesis agent might need to verify.",
+        "correct": false
+      },
+      {
+        "text": "Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once.",
+        "correct": false
+      },
+      {
+        "text": "Give the synthesis agent a scoped verify_fact tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Subagent Error Escalation",
+    "type": "SINGLE_CHOICE",
+    "text": "The document analysis subagent encounters a corrupted PDF file it cannot parse. When designing the system's error handling, what is the most effective way to handle this failure?",
+    "explanation": "The subagent should return the error with relevant context to the coordinator, which can then decide whether to retry, skip the document, or adjust the workflow. This preserves centralized control over recovery decisions.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Return the error with context to the coordinator agent, letting it decide how to proceed.",
+        "correct": true
+      },
+      {
+        "text": "Automatically retry parsing the document three times with exponential backoff before reporting failure.",
+        "correct": false
+      },
+      {
+        "text": "Throw an exception that terminates the entire research workflow.",
+        "correct": false
+      },
+      {
+        "text": "Silently skip the corrupted document and continue processing other files to avoid interrupting the workflow.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Local Recovery",
+    "type": "SINGLE_CHOICE",
+    "text": "The document analysis subagent frequently encounters failures when processing PDF files. Currently, any exception immediately terminates the subagent and returns an error to the coordinator. This is causing excessive coordinator involvement in routine error handling. What's the most effective architectural improvement?",
+    "explanation": "The subagent should handle recoverable or routine failures locally, such as retries or partial parsing, and only escalate unresolved issues to the coordinator. This reduces unnecessary coordinator involvement while still preserving transparency about attempted recovery and partial results.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Have the coordinator validate all documents before dispatching to the subagent, rejecting documents likely to cause failures to ensure the subagent only receives processable files.",
+        "correct": false
+      },
+      {
+        "text": "Have the subagent implement local recovery for transient failures and only propagate errors it cannot resolve to the coordinator, including what was attempted and any partial results obtained.",
+        "correct": true
+      },
+      {
+        "text": "Create a dedicated error-handling agent that monitors all subagent failures via a shared queue and makes recovery decisions independently, dispatching retry commands directly to subagents.",
+        "correct": false
+      },
+      {
+        "text": "Configure the subagent to always return partial results with success status, embedding error details in metadata. The coordinator treats all responses as successful and filters problematic items during synthesis.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Error Semantics",
+    "type": "SINGLE_CHOICE",
+    "text": "During a materials research task, the web search subagent queries three source categories with different outcomes: academic databases returned 15 relevant papers, industry reports returned \"0 results found,\" and patent databases returned \"Connection timeout.\" When designing error propagation to the coordinator, what approach enables the best recovery decisions?",
+    "explanation": "A timeout is an access failure that may require retry or fallback, while \"0 results\" is a valid empty result. Distinguishing these outcomes lets the coordinator make correct recovery decisions instead of treating all non-success states the same way.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Report both the timeout and \"0 results\" as failures requiring coordinator intervention.",
+        "correct": false
+      },
+      {
+        "text": "Have the subagent retry transient failures internally and only report persistent errors.",
+        "correct": false
+      },
+      {
+        "text": "Aggregate outcomes into a single success rate metric with detailed logs available on request.",
+        "correct": false
+      },
+      {
+        "text": "Distinguish access failures needing retry decisions from valid empty results representing successful queries.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Structured Error Context",
+    "type": "SINGLE_CHOICE",
+    "text": "The web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?",
+    "explanation": "The coordinator needs structured information to recover intelligently. Returning the failure type, attempted query, partial results, and possible alternatives gives it the context needed to retry, fallback, or continue with incomplete data.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Propagate the timeout exception directly to a top-level handler that terminates the entire research workflow.",
+        "correct": false
+      },
+      {
+        "text": "Catch the timeout within the subagent and return an empty result set marked as successful.",
+        "correct": false
+      },
+      {
+        "text": "Implement automatic retry logic with exponential backoff within the subagent, returning a generic \"search unavailable\" status only after all retries are exhausted.",
+        "correct": false
+      },
+      {
+        "text": "Return structured error context to the coordinator including the failure type, the attempted query, any partial results, and potential alternative approaches.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Context Reduction",
+    "type": "SINGLE_CHOICE",
+    "text": "During testing, combined outputs from the web search agent and the document analysis agent total 155K tokens, but the synthesis agent performs optimally with inputs under 50K tokens. What's the most effective solution?",
+    "explanation": "The best fix is upstream: have earlier agents return structured outputs such as key facts, citations, and relevance instead of verbose content and reasoning. This reduces context size before it reaches synthesis without adding unnecessary extra stages.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Store findings in a vector database and give the synthesis agent retrieval tools to query during its work.",
+        "correct": false
+      },
+      {
+        "text": "Have the synthesis agent process findings in sequential batches, maintaining running state between calls.",
+        "correct": false
+      },
+      {
+        "text": "Modify upstream agents to return structured data instead of verbose content and reasoning.",
+        "correct": true
+      },
+      {
+        "text": "Add an intermediate summarization agent that condenses findings before passing to synthesis.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Multi-Agent Research System",
+    "topic": "Synthesis Workflow",
+    "type": "SINGLE_CHOICE",
+    "text": "The web search and document analysis agents have both completed their tasks and returned findings to the coordinator. What is the appropriate next step for producing an integrated research output?",
+    "explanation": "The coordinator should pass both result sets to the synthesis agent, which is responsible for integrating findings into a unified analysis. Direct agent-to-agent merging or simple concatenation bypasses the intended orchestration design.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Each agent directly sends its findings to the report generation agent, bypassing the coordinator.",
+        "correct": false
+      },
+      {
+        "text": "The coordinator passes both sets of findings to the synthesis agent for unified integration.",
+        "correct": true
+      },
+      {
+        "text": "The coordinator concatenates the raw outputs from both agents and returns them as the final result.",
+        "correct": false
+      },
+      {
+        "text": "The document analysis agent requests the web search results and merges them internally.",
+        "correct": false
+      }
+    ]
+  }
+]

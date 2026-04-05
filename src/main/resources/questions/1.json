@@ -1,0 +1,407 @@
+[
+  {
+    "section": "Agent Design",
+    "topic": "Customer Identification",
+    "type": "SINGLE_CHOICE",
+    "text": "Your get_customer tool returns all matches when searching by name. Claude currently picks the customer with the most recent order when multiple results are returned, but production data shows this causes 15% of multi-match cases to proceed with the wrong customer account. How should you address this?",
+    "explanation": "The correct approach is to require clarification from the user when multiple matches are returned. Automatically selecting a customer risks incorrect actions. Asking for an additional identifier ensures accuracy and prevents errors.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Modify get_customer to return only the single most likely match based on a ranking algorithm, simplifying Claude's decision by eliminating ambiguous results.",
+        "correct": false
+      },
+      {
+        "text": "Implement a confidence scoring system that proceeds automatically above 85% confidence and prompts for clarification below that threshold.",
+        "correct": false
+      },
+      {
+        "text": "Instruct Claude to ask for an additional identifier (email, phone, or order number) when get_customer returns multiple matches, before taking any customer-specific action.",
+        "correct": true
+      },
+      {
+        "text": "Add few-shot examples showing Claude how to use conversational context to infer the correct customer without requiring clarification.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Escalation Strategy",
+    "type": "SINGLE_CHOICE",
+    "text": "After calling get_customer and lookup_order, the agent has retrieved all available system data but faces uncertainty. Which situation represents the most appropriate trigger for calling escalate_to_human?",
+    "explanation": "Escalation is appropriate when policy is unclear or requires interpretation. In this case, competitor price matching is not defined, so a human decision is needed.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "The customer claims they never received their order, but tracking shows it was delivered.",
+        "correct": false
+      },
+      {
+        "text": "The customer requests a price match against a competitor, but policies do not define this case.",
+        "correct": true
+      },
+      {
+        "text": "The customer mentions both a billing question and a product return.",
+        "correct": false
+      },
+      {
+        "text": "The customer wants to cancel an order that already shipped.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Context Management",
+    "topic": "Summarization",
+    "type": "SINGLE_CHOICE",
+    "text": "Your support agent uses progressive summarization. Customers reference specific amounts, but the agent responds incorrectly because details were summarized. What's the most effective fix?",
+    "explanation": "Critical facts like amounts and dates should be stored separately from summarized history. This ensures they are always preserved and accessible.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Store full conversation history externally and retrieve when needed.",
+        "correct": false
+      },
+      {
+        "text": "Increase summarization threshold to delay summarization.",
+        "correct": false
+      },
+      {
+        "text": "Extract transactional facts into a persistent block included in each prompt.",
+        "correct": true
+      },
+      {
+        "text": "Revise summarization prompt to preserve numbers.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Escalation Calibration",
+    "type": "SINGLE_CHOICE",
+    "text": "Your agent escalates simple cases but handles complex ones incorrectly. How to improve escalation calibration?",
+    "explanation": "Explicit criteria with examples helps the model distinguish between cases that should be escalated and those it can handle autonomously.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Use sentiment analysis to trigger escalation.",
+        "correct": false
+      },
+      {
+        "text": "Add explicit escalation criteria with few-shot examples.",
+        "correct": true
+      },
+      {
+        "text": "Train a classifier model.",
+        "correct": false
+      },
+      {
+        "text": "Use confidence scores.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Response Quality",
+    "type": "SINGLE_CHOICE",
+    "text": "Customer satisfaction is lower for complex cases because explanations are inconsistent. What is the best solution?",
+    "explanation": "A self-critique step ensures completeness and consistency in explanations without requiring human review.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add a self-critique step.",
+        "correct": true
+      },
+      {
+        "text": "Add few-shot examples.",
+        "correct": false
+      },
+      {
+        "text": "Use a larger model.",
+        "correct": false
+      },
+      {
+        "text": "Ask customers for confirmation.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Behavior",
+    "topic": "Tool Selection Bias",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent behavior changes based on keywords like 'account'. What is the root cause?",
+    "explanation": "The system prompt likely contains keyword-sensitive instructions that bias tool selection.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Tool descriptions lack negative examples.",
+        "correct": false
+      },
+      {
+        "text": "System prompt contains keyword-sensitive instructions.",
+        "correct": true
+      },
+      {
+        "text": "Model needs fine-tuning.",
+        "correct": false
+      },
+      {
+        "text": "Base model associations override tools.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Tooling",
+    "topic": "Data Normalization",
+    "type": "SINGLE_CHOICE",
+    "text": "Your agent receives inconsistent data formats from MCP tools. What is the best normalization approach?",
+    "explanation": "PostToolUse hooks allow centralized transformation without modifying tools or prompts.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Create normalize_data tool.",
+        "correct": false
+      },
+      {
+        "text": "Modify tools and add wrappers.",
+        "correct": false
+      },
+      {
+        "text": "Document formats in prompt.",
+        "correct": false
+      },
+      {
+        "text": "Use PostToolUse hook to normalize results.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Tooling",
+    "topic": "Tool Selection",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent calls wrong tool due to vague descriptions. What is the best first step?",
+    "explanation": "Clear and detailed tool descriptions are the most effective first improvement for tool selection.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add few-shot examples.",
+        "correct": false
+      },
+      {
+        "text": "Merge tools.",
+        "correct": false
+      },
+      {
+        "text": "Expand tool descriptions.",
+        "correct": true
+      },
+      {
+        "text": "Add routing layer.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Multi-Concern Handling",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent struggles with multi-concern requests. What is the best approach?",
+    "explanation": "Few-shot examples help guide reasoning and sequencing when handling multiple concerns.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Merge tools.",
+        "correct": false
+      },
+      {
+        "text": "Preprocess into separate requests.",
+        "correct": false
+      },
+      {
+        "text": "Validate responses.",
+        "correct": false
+      },
+      {
+        "text": "Add few-shot examples for multi-concern reasoning.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Preconditions",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent skips get_customer and uses name directly. How to fix?",
+    "explanation": "Programmatic enforcement ensures correct sequence regardless of model behavior.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add routing classifier.",
+        "correct": false
+      },
+      {
+        "text": "Enforce prerequisite before lookup_order.",
+        "correct": true
+      },
+      {
+        "text": "Add examples.",
+        "correct": false
+      },
+      {
+        "text": "Update prompt.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Tooling",
+    "topic": "Few-shot Strategy",
+    "type": "SINGLE_CHOICE",
+    "text": "How to improve tool selection for ambiguous requests using few-shot examples?",
+    "explanation": "Focused examples on ambiguous scenarios provide the highest impact.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add many clear examples.",
+        "correct": false
+      },
+      {
+        "text": "Add tool rules.",
+        "correct": false
+      },
+      {
+        "text": "Group by tool.",
+        "correct": false
+      },
+      {
+        "text": "Add examples for ambiguous cases with reasoning.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Performance",
+    "topic": "API Optimization",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent makes too many API calls. How to reduce round-trips?",
+    "explanation": "Batching tool calls reduces unnecessary API cycles.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Increase max tokens.",
+        "correct": false
+      },
+      {
+        "text": "Batch tool requests.",
+        "correct": true
+      },
+      {
+        "text": "Create composite tools.",
+        "correct": false
+      },
+      {
+        "text": "Use speculative execution.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Tooling",
+    "topic": "Tool Selection",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent selects wrong tool for order queries. What should you check first?",
+    "explanation": "Tool descriptions are the first place to check when tool misuse occurs.",
+    "difficulty": "EASY",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add examples.",
+        "correct": false
+      },
+      {
+        "text": "Reduce tools.",
+        "correct": false
+      },
+      {
+        "text": "Review tool descriptions.",
+        "correct": true
+      },
+      {
+        "text": "Add classifier.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Loop",
+    "topic": "Execution Flow",
+    "type": "SINGLE_CHOICE",
+    "text": "How to decide whether to continue or stop the agent loop?",
+    "explanation": "Claude explicitly signals via stop_reason whether to continue or stop.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Check for text output.",
+        "correct": false
+      },
+      {
+        "text": "Limit iterations.",
+        "correct": false
+      },
+      {
+        "text": "Check stop_reason field.",
+        "correct": true
+      },
+      {
+        "text": "Parse text signals.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Agent Design",
+    "topic": "Parallel Processing",
+    "type": "SINGLE_CHOICE",
+    "text": "Agent struggles with complex multi-part requests. What is the best improvement?",
+    "explanation": "Decomposing and processing concerns in parallel improves efficiency and accuracy.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Decompose and process in parallel.",
+        "correct": true
+      },
+      {
+        "text": "Add examples.",
+        "correct": false
+      },
+      {
+        "text": "Add checkpoints.",
+        "correct": false
+      },
+      {
+        "text": "Merge tools.",
+        "correct": false
+      }
+    ]
+  }
+]

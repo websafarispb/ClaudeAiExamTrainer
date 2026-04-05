@@ -1,0 +1,407 @@
+[
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Independent Review",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team uses Claude Code to generate code suggestions, but you notice a pattern: subtle issues—performance optimizations that break edge cases, cleanups that change behavior unexpectedly—only surface when a different team member reviews the PR. Claude's reasoning during generation shows it considered these cases but concluded its approach was correct. Which approach directly addresses the root cause of this self-review limitation?",
+    "explanation": "The root problem is self-review bias: the same model instance that generated the suggestion is also inclined to validate its own reasoning. A second independent Claude Code instance can evaluate the changes without being anchored by the original reasoning, making it more likely to catch issues the generator missed.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Include comprehensive test files and documentation in the prompt context so Claude better understands expected behavior during generation.",
+        "correct": false
+      },
+      {
+        "text": "Enable extended thinking mode for the generation pass, allowing more thorough deliberation before producing suggestions.",
+        "correct": false
+      },
+      {
+        "text": "Have a second, independent Claude Code instance review the changes without seeing the generator's reasoning.",
+        "correct": true
+      },
+      {
+        "text": "Add explicit self-review instructions to the generation prompt, asking Claude to critique its own suggestions before finalizing output.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Headless Execution",
+    "type": "SINGLE_CHOICE",
+    "text": "Your pipeline script runs claude \"Analyze this pull request for security issues\" but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input. What's the correct approach to run Claude Code in an automated pipeline?",
+    "explanation": "In automated CI environments, Claude Code must run in non-interactive print mode so it does not wait for user input. The -p flag enables that behavior and is the correct way to run it headlessly in a pipeline.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add the --batch flag: claude --batch \"Analyze this pull request for security issues\"",
+        "correct": false
+      },
+      {
+        "text": "Set the environment variable CLAUDE_HEADLESS=true before running the command",
+        "correct": false
+      },
+      {
+        "text": "Add the -p flag: claude -p \"Analyze this pull request for security issues\"",
+        "correct": true
+      },
+      {
+        "text": "Redirect stdin from /dev/null: claude \"Analyze this pull request for security issues\" < /dev/null",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Structured Review Output",
+    "type": "SINGLE_CHOICE",
+    "text": "Your CI pipeline runs the Claude Code CLI (with --print mode) using CLAUDE.md to provide project context for code reviews, and developers generally find the reviews insightful. However, they report that integrating findings into your workflow is difficult—Claude produces narrative paragraphs that must be manually copied into PR comments. Your team wants to automatically post each finding as a separate inline PR comment at the relevant code location, which requires structured data with file path, line number, severity, and suggested fix. What's the most effective approach?",
+    "explanation": "If downstream automation needs reliably structured fields, the strongest approach is to enforce structured output at the CLI level using JSON output and a JSON schema. This avoids brittle parsing of narrative text and makes inline PR comment automation dependable.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Keep the narrative review format but add a summarization step that uses Claude to generate a structured JSON summary of the findings.",
+        "correct": false
+      },
+      {
+        "text": "Include explicit formatting instructions in your review prompt requiring each finding to follow a parseable template like [FILE:path] [LINE:n] [SEVERITY:level] ....",
+        "correct": false
+      },
+      {
+        "text": "Add a \"Review Output Format\" section to CLAUDE.md with examples showing structured findings, so Claude learns the expected format from project context.",
+        "correct": false
+      },
+      {
+        "text": "Use CLI flags --output-format json and --json-schema to enforce structured findings, then parse output to post inline comments via the GitHub API.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Multi-Pass Review",
+    "type": "SINGLE_CHOICE",
+    "text": "A pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback—flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR. How should you restructure the review?",
+    "explanation": "A single large review pass dilutes attention and causes inconsistency. Separating the work into local file-level review and a second pass for cross-file integration allows the model to focus properly on each kind of issue and improves consistency.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Switch to a higher-tier model with a larger context window to give all 14 files adequate attention in one pass.",
+        "correct": false
+      },
+      {
+        "text": "Run three independent review passes on the full PR and only flag issues that appear in at least two of the three runs.",
+        "correct": false
+      },
+      {
+        "text": "Require developers to split large PRs into smaller submissions of 3-4 files before the automated review runs.",
+        "correct": false
+      },
+      {
+        "text": "Split into focused passes: analyze each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Test Suggestion Deduplication",
+    "type": "SINGLE_CHOICE",
+    "text": "Your automated review generates test case suggestions for each PR. When reviewing a PR that adds course completion tracking, Claude suggests 10 test cases but developer feedback indicates 6 duplicate scenarios already covered in the existing test suite. What change would most effectively reduce duplicate suggestions?",
+    "explanation": "Claude can only avoid suggesting already-covered scenarios if it can see what is already covered. Including the existing test file in context gives it the information needed to focus on genuinely missing test cases.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Reduce requested suggestions from 10 to 5, assuming Claude will prioritize the most valuable cases first",
+        "correct": false
+      },
+      {
+        "text": "Include the existing test file in the context so Claude can identify what scenarios are already covered",
+        "correct": true
+      },
+      {
+        "text": "Add instructions directing Claude to focus exclusively on edge cases and error conditions rather than successful paths",
+        "correct": false
+      },
+      {
+        "text": "Implement post-processing that filters suggestions whose descriptions match keywords from existing test names",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Batch vs Synchronous APIs",
+    "type": "SINGLE_CHOICE",
+    "text": "Your CI/CD system performs three types of Claude-powered analysis: (1) quick style checks on each PR that block merging until complete, (2) comprehensive security audits of the entire codebase run weekly, and (3) test case generation triggered nightly for recently-modified modules. The Message Batches API offers 50% cost savings but can take up to 24 hours to process. You want to optimize API costs while maintaining acceptable developer experience. Which combination correctly matches each task to its API approach?",
+    "explanation": "Blocking PR checks need fast synchronous responses because they affect developer flow. Weekly audits and nightly test generation are asynchronous background jobs, so they are good candidates for the lower-cost Message Batches API.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Use synchronous calls for PR style checks and nightly test generation; use Message Batches API only for weekly security audits.",
+        "correct": false
+      },
+      {
+        "text": "Use synchronous calls for PR style checks; use the Message Batches API for weekly security audits and nightly test generation.",
+        "correct": true
+      },
+      {
+        "text": "Use the Message Batches API for all three tasks to maximize the 50% cost savings, and configure the pipeline to poll for batch completion.",
+        "correct": false
+      },
+      {
+        "text": "Use synchronous calls for all three tasks for consistent response times, and rely on prompt caching to reduce costs across all workloads.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Batch Processing Constraints",
+    "type": "SINGLE_CHOICE",
+    "text": "The code review component works iteratively: Claude analyzes a changed file, then may request related files via tool calling to understand context before providing final feedback. You're evaluating batch processing to reduce API costs. What is the primary technical constraint when considering batch processing for this workflow?",
+    "explanation": "Batch processing is not suitable for iterative agent loops that require mid-execution tool calls and then continued reasoning based on those tool results. The asynchronous batch model breaks that interaction pattern.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Batch processing latency of up to 24 hours is too slow for pull request feedback, though the workflow could otherwise function.",
+        "correct": false
+      },
+      {
+        "text": "The asynchronous model prevents executing tools mid-request and returning results for Claude to continue analysis.",
+        "correct": true
+      },
+      {
+        "text": "The batch API doesn't support tool definitions in request parameters.",
+        "correct": false
+      },
+      {
+        "text": "Batch processing lacks request correlation identifiers for matching outputs to input requests.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Trust Restoration",
+    "type": "SINGLE_CHOICE",
+    "text": "Analysis of your automated code review shows significant variation in false positive rates across finding categories. Security and correctness findings have an 8% false positive rate, performance findings have 18%, style and naming findings have 52%, and documentation findings have 48%. Developer surveys indicate growing distrust—many have started dismissing findings without review because \"half are wrong.\" The high false positive categories are undermining confidence in the accurate categories. What approach best restores developer trust while improving the system?",
+    "explanation": "When noisy categories undermine trust in the whole system, the best move is to temporarily disable the low-precision categories and keep only the high-precision ones active while improving prompts. This restores signal quality and helps rebuild confidence.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Apply a uniform strictness reduction across all categories to bring the overall false positive rate to an acceptable level.",
+        "correct": false
+      },
+      {
+        "text": "Temporarily disable high false positive categories (style, naming, documentation) and run only high-precision categories while improving prompts.",
+        "correct": true
+      },
+      {
+        "text": "Keep all categories enabled while adding few-shot examples to improve each category's accuracy over the coming weeks.",
+        "correct": false
+      },
+      {
+        "text": "Keep all categories but display a confidence score with each finding, letting developers decide which to investigate.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Selective Batch Use",
+    "type": "SINGLE_CHOICE",
+    "text": "Your CI pipeline includes two Claude-powered code review modes: a pre-merge-commit hook that blocks PR merging until complete, and \"deep analysis\" that runs overnight, polls for batch completion, then posts detailed suggestions to the PR. You want to reduce API costs using the Message Batches API, which offers 50% cost savings but requires polling and may take up to 24 hours to complete. Which mode should use batch processing?",
+    "explanation": "Only the overnight deep-analysis workflow should use batch processing. It is asynchronous and tolerant of delay, unlike the pre-merge hook, which must finish quickly to avoid blocking developers.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Neither mode",
+        "correct": false
+      },
+      {
+        "text": "Pre-merge-commit hook only",
+        "correct": false
+      },
+      {
+        "text": "Both modes",
+        "correct": false
+      },
+      {
+        "text": "Deep analysis only",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Prompt Precision",
+    "type": "SINGLE_CHOICE",
+    "text": "Your automated review analyzes comments and docstrings. The current prompt instructs Claude to \"check that comments are accurate and up-to-date.\" Findings frequently flag acceptable patterns while missing comments that describe behavior the code no longer implements. What change addresses the root cause of this inconsistent analysis?",
+    "explanation": "The instruction is too vague. Replacing it with an explicit, testable criterion—flag only comments whose stated behavior contradicts actual code behavior—reduces subjective interpretation and improves consistency.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Include git blame data so Claude can identify comments that predate recent code modifications",
+        "correct": false
+      },
+      {
+        "text": "Filter out TODO, FIXME, and descriptive comment patterns before analysis to reduce noise",
+        "correct": false
+      },
+      {
+        "text": "Add few-shot examples of misleading comments to help the model recognize similar patterns in the codebase",
+        "correct": false
+      },
+      {
+        "text": "Specify explicit criteria: flag comments only when their claimed behavior contradicts actual code behavior",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Workflow-Based Cost Optimization",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings. How should you evaluate this proposal?",
+    "explanation": "The overnight technical debt report is a good fit for Message Batches because it is asynchronous. The blocking pre-merge check is not, because developers need fast feedback before merging. So only the overnight report should move to batch processing.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Keep real-time calls for both workflows to avoid batch result ordering issues.",
+        "correct": false
+      },
+      {
+        "text": "Switch both to batch processing with a timeout fallback to real-time if batches take too long.",
+        "correct": false
+      },
+      {
+        "text": "Use batch processing for the technical debt reports only; keep real-time calls for pre-merge checks.",
+        "correct": true
+      },
+      {
+        "text": "Switch both workflows to batch processing with status polling to check for completion.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Reducing Investigation Time",
+    "type": "SINGLE_CHOICE",
+    "text": "Your automated code review averages 15 findings per pull request, with developers reporting a 40% false positive rate. The bottleneck is investigation time: developers must click into each finding to read Claude's reasoning before deciding whether to address or dismiss it. Your CLAUDE.md already contains comprehensive rules for acceptable patterns, and stakeholders have rejected any approach that filters findings before developer review. What change would best address the investigation time bottleneck?",
+    "explanation": "Since pre-filtering is not allowed, the best way to reduce investigation time is to make each finding self-contained. Including reasoning and confidence inline helps developers quickly judge whether a finding is worth acting on without extra clicks.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Configure Claude to only surface findings it assesses as high confidence, filtering out uncertain flags before developers see them",
+        "correct": false
+      },
+      {
+        "text": "Categorize findings as \"blocking issues\" versus \"suggestions\" with tiered review requirements",
+        "correct": false
+      },
+      {
+        "text": "Require Claude to include its reasoning and confidence assessment inline with each finding",
+        "correct": true
+      },
+      {
+        "text": "Add a post-processor that analyzes finding patterns and automatically suppresses those matching historical false positive signatures",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Incremental Review Context",
+    "type": "SINGLE_CHOICE",
+    "text": "After an initial automated review generates 12 findings, a developer pushes new commits to address the issues. When the review runs again, it produces 8 findings—but developers report that 5 duplicate earlier comments on code that was already fixed in the new commits. What's the most effective way to eliminate this redundant feedback while maintaining thorough analysis?",
+    "explanation": "Giving Claude the prior review findings as context and instructing it to report only new or still-unresolved issues is the best way to avoid redundant comments while still preserving complete review coverage.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add a post-processing filter that removes findings matching previous file paths and issue descriptions before posting comments.",
+        "correct": false
+      },
+      {
+        "text": "Include prior review findings in context, instructing Claude to only report new or still-unaddressed issues.",
+        "correct": true
+      },
+      {
+        "text": "Run reviews only on initial PR creation and final pre-merge state, skipping intermediate commits.",
+        "correct": false
+      },
+      {
+        "text": "Restrict the review scope to only files modified in the most recent push, excluding files from earlier commits.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Severity Calibration",
+    "type": "SINGLE_CHOICE",
+    "text": "Your automated code review system shows inconsistent severity ratings—similar issues like null pointer risks receive \"critical\" severity in some PRs but only \"medium\" in others. Developer trust is declining because teams can't predict which findings require immediate attention. What's the most effective way to improve severity consistency?",
+    "explanation": "Severity consistency improves when the model has explicit definitions and concrete examples for each level. This reduces subjective interpretation and gives Claude a stable frame of reference for assigning severity.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Request that Claude include its reasoning for each severity assignment, then use that reasoning to manually calibrate and adjust ratings during review",
+        "correct": false
+      },
+      {
+        "text": "Include explicit severity criteria in your prompt with concrete code examples for each severity level",
+        "correct": true
+      },
+      {
+        "text": "Add a CLAUDE.md file that lists issue types and their default severities, instructing Claude to reference this mapping when assigning ratings",
+        "correct": false
+      },
+      {
+        "text": "Modify the prompt to ask Claude to rate severity relative to other issues in the same PR, so the most severe issue is always marked critical and others rated proportionally",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Claude Code for Continuous Integration",
+    "topic": "Actionable Feedback Formatting",
+    "type": "SINGLE_CHOICE",
+    "text": "Your automated reviews identify valid issues but developers report the feedback isn't actionable. Findings say things like \"complex ticket allocation logic\" or \"potential null pointer\" without specifying what to change. When you add detailed instructions like \"always include specific fix suggestions,\" the model still produces inconsistent output—sometimes detailed, sometimes vague. What prompting technique would most reliably produce consistently actionable feedback?",
+    "explanation": "Few-shot examples are the most reliable way to demonstrate the exact format and level of specificity you want. They show the model what actionable feedback should look like, which is more effective than relying on instructions alone.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Expand the context window to include more of the surrounding codebase so the model has sufficient information to suggest specific fixes",
+        "correct": false
+      },
+      {
+        "text": "Add 3-4 few-shot examples showing the exact format you want: issue identified, code location, specific fix suggestion",
+        "correct": true
+      },
+      {
+        "text": "Implement a two-pass approach where one prompt identifies issues and a second prompt generates fixes, allowing specialization",
+        "correct": false
+      },
+      {
+        "text": "Further refine the instructions with more explicit requirements for each part of the feedback format (location, issue, severity, suggested fix)",
+        "correct": false
+      }
+    ]
+  }
+]

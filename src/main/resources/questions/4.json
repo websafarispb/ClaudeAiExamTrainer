@@ -1,0 +1,407 @@
+[
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Reusable Generation Context",
+    "type": "SINGLE_CHOICE",
+    "text": "You've found that including 2-3 full exemplar endpoint implementations as context significantly improves consistency when generating new API endpoints. However, this context is only useful for creating new endpoints—not for bug fixes, code reviews, or other API directory work. What's the most efficient configuration approach?",
+    "explanation": "A skill invoked on demand is the most efficient option because the exemplar endpoint context is only relevant for one specific workflow: generating new endpoints. This avoids polluting general project context for unrelated tasks like bug fixes or reviews.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Create a skill that references the exemplar endpoints and includes pattern-following instructions, invoked on-demand via slash command.",
+        "correct": true
+      },
+      {
+        "text": "Reference the exemplar endpoints manually in each generation request by copying relevant code into your prompt.",
+        "correct": false
+      },
+      {
+        "text": "Configure path-specific rules in .claude/rules/api/ that include the exemplar code and activate when working in the API directory.",
+        "correct": false
+      },
+      {
+        "text": "Add the exemplar endpoint code with pattern documentation to the project CLAUDE.md file so it's automatically available.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Project vs User Instructions",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team has been using Claude Code for several months. Recently, three developers report that Claude correctly follows your \"always include comprehensive error handling\" guideline, but a fourth developer who just joined reports Claude isn't following this guideline. All four developers are working in the same repository and have the latest code pulled. What's the most likely cause and appropriate fix?",
+    "explanation": "If only existing developers see the behavior, the guideline is most likely stored in their personal user-level CLAUDE.md files rather than the shared project-level configuration. Moving it to the project-level file ensures all team members get the same instruction.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "The guideline exists in the original developers' ~/.claude/CLAUDE.md files (user-level) instead of the project's .claude/CLAUDE.md. Move the instruction to the project-level file so all team members receive it.",
+        "correct": true
+      },
+      {
+        "text": "The new developer's ~/.claude/CLAUDE.md contains conflicting instructions that override the project settings. Have them remove the conflicting section from their user-level configuration.",
+        "correct": false
+      },
+      {
+        "text": "Claude Code builds per-user preference models over time through repeated interactions. The new developer needs to repeatedly specify the error handling requirement until Claude learns their preferences.",
+        "correct": false
+      },
+      {
+        "text": "Claude Code caches CLAUDE.md contents after first read. The original developers have cached versions while the new developer loaded after the file was modified. Have all developers clear their Claude Code cache.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Specification by Example",
+    "type": "SINGLE_CHOICE",
+    "text": "You've asked Claude Code to implement a function that transforms API responses into a normalized internal format. After two iterations, the output structure still doesn't match expectations—some fields are nested differently and timestamps aren't formatted correctly. You've been describing the requirements in prose, but Claude seems to interpret them differently each time. What's the most effective approach for the next iteration?",
+    "explanation": "Concrete input-output examples remove ambiguity much better than prose. They show exactly how fields should map, how nesting should look, and how timestamps should be formatted, making the intended transformation much clearer.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Write a JSON schema defining the expected output structure and validate Claude's output against it after each iteration.",
+        "correct": false
+      },
+      {
+        "text": "Provide 2-3 concrete input-output examples showing the expected transformation for representative API responses.",
+        "correct": true
+      },
+      {
+        "text": "Ask Claude to explain its current interpretation of the requirements so you can identify where understanding diverges.",
+        "correct": false
+      },
+      {
+        "text": "Rewrite your requirements with greater technical precision, specifying exact field mappings, nesting rules, and timestamp format strings.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Personal Skill Customization",
+    "type": "SINGLE_CHOICE",
+    "text": "You've created a /commit skill in .claude/skills/commit/SKILL.md that your team uses. One developer wants to customize it for their personal workflow (different commit message format, additional checks) without affecting teammates. What should you recommend?",
+    "explanation": "Because the project skill already uses the name /commit, a personal version with the same name would be shadowed in this exam context. The safest way to customize behavior without affecting teammates is to create a personal skill with a different name, such as /my-commit.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Set override: true in the personal skill's frontmatter to take precedence over the project version.",
+        "correct": false
+      },
+      {
+        "text": "Create a personal version in ~/.claude/skills/ with a different name like /my-commit.",
+        "correct": true
+      },
+      {
+        "text": "Add username-based conditional logic to the project skill's frontmatter.",
+        "correct": false
+      },
+      {
+        "text": "Create a personal version at ~/.claude/skills/commit/SKILL.md with the same name.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Isolated Exploration Context",
+    "type": "SINGLE_CHOICE",
+    "text": "You're creating a custom /explore-alternatives skill that your team uses to brainstorm and evaluate different implementation approaches before committing to one. However, developers report that after running this skill, Claude's subsequent responses are influenced by the exploration discussion—sometimes referencing abandoned approaches or maintaining exploratory context that confuses actual implementation work. What's the most effective way to configure this skill?",
+    "explanation": "The problem is context contamination from exploratory work. Setting context: fork isolates that exploration in a separate context so the main session stays clean and later implementation work is not influenced by abandoned ideas.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Split the skill into two separate skills—/explore-start and /explore-end—to demarcate when exploration context should be discarded.",
+        "correct": false
+      },
+      {
+        "text": "Add context: fork to the skill's frontmatter.",
+        "correct": true
+      },
+      {
+        "text": "Create the skill in ~/.claude/skills/ instead of .claude/skills/.",
+        "correct": false
+      },
+      {
+        "text": "Use the ! prefix in the skill to execute the exploration logic as a bash subprocess.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Large-Scale Refactoring Workflow",
+    "type": "SINGLE_CHOICE",
+    "text": "You're adding error handling wrappers to external API calls across a 120-file codebase. The task has three phases: (1) discovering all API call locations and patterns, (2) designing the error handling approach collaboratively, and (3) implementing wrappers consistently. During Phase 1, Claude generates verbose output listing hundreds of call sites with context. Your context window is filling rapidly before you've finished discovery. What's the most effective approach to complete this while maintaining implementation consistency?",
+    "explanation": "The verbose discovery phase should be isolated from the main implementation conversation. Using the Explore subagent for discovery keeps the noisy output out of the main context while still allowing the team to continue planning and implementation consistently in the primary thread.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Use the Explore subagent for Phase 1 to isolate verbose output and return a summary, then continue Phases 2-3 in the main conversation.",
+        "correct": true
+      },
+      {
+        "text": "Switch to headless mode with --continue, passing explicit context summaries between batch invocations to maintain continuity.",
+        "correct": false
+      },
+      {
+        "text": "Define your error handling pattern in CLAUDE.md, then process files in batches across multiple sessions, relying on the shared memory file for consistency.",
+        "correct": false
+      },
+      {
+        "text": "Continue all phases in the main conversation, using /compact periodically to reduce context usage as you progress through the files.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Skill Configuration Safety",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team has created a /migration skill that generates database migration files. The skill accepts a migration name via $ARGUMENTS. In production, you're seeing three issues: (1) developers often invoke the skill without arguments, resulting in poorly-named files, (2) the skill sometimes incorporates database schema details from unrelated earlier conversations, and (3) a developer accidentally triggered destructive test cleanup when the skill had broad tool access. Which configuration approach addresses all three issues?",
+    "explanation": "This combination solves all three problems at the configuration level: argument-hint helps with missing migration names, context: fork isolates the skill from unrelated conversation history, and restricted allowed-tools prevents dangerous operations beyond file writing.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Split into separate /migration-create and /migration-apply skills, add instructions in each SKILL.md to request a migration name if not provided, and use different allowed-tools scopes for each skill.",
+        "correct": false
+      },
+      {
+        "text": "Add argument-hint frontmatter to prompt for required parameters, use context: fork to isolate execution, and restrict allowed-tools to file write operations.",
+        "correct": true
+      },
+      {
+        "text": "Include validation instructions in the skill's SKILL.md that direct Claude to verify $ARGUMENTS contains a valid name, add prompts to ignore prior conversation context, and list forbidden operations Claude should avoid.",
+        "correct": false
+      },
+      {
+        "text": "Use positional parameters $1 and $2 instead of $ARGUMENTS to enforce specific inputs, include explicit schema file references via @ syntax to control context, and add description frontmatter warning about destructive operations.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Heavy Analysis Isolation",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team created an /analyze-codebase skill that performs comprehensive code analysis—dependency scanning, test coverage calculation, and code quality metrics. After running this command, team members report that Claude becomes less responsive in the session and loses track of their original task. What's the most effective way to address this while preserving full analysis capability?",
+    "explanation": "The issue is that the large analysis output pollutes the main session context. Running the skill with context: fork isolates that analysis in a separate sub-agent context while preserving the full capability and keeping the main session focused.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Add instructions to the skill to compress all outputs into a brief summary before displaying.",
+        "correct": false
+      },
+      {
+        "text": "Split the skill into three smaller skills that each generate less output.",
+        "correct": false
+      },
+      {
+        "text": "Add context: fork to the skill's frontmatter to run the analysis in an isolated sub-agent context.",
+        "correct": true
+      },
+      {
+        "text": "Add model: haiku to the frontmatter to use a faster, more efficient model for the analysis.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Path-Specific Conventions",
+    "type": "SINGLE_CHOICE",
+    "text": "Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location. What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?",
+    "explanation": "Rule files with glob patterns are the most maintainable solution because they can apply conventions based on file path or file type. This allows different standards for components, API handlers, and models while also applying shared test conventions across all test files regardless of location.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Create skills in .claude/skills/ for each code type that include the relevant conventions in their SKILL.md files.",
+        "correct": false
+      },
+      {
+        "text": "Create rule files in .claude/rules/ with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths.",
+        "correct": true
+      },
+      {
+        "text": "Place a separate CLAUDE.md file in each subdirectory containing that area's specific conventions.",
+        "correct": false
+      },
+      {
+        "text": "Consolidate all conventions in the root CLAUDE.md file under headers for each area, relying on Claude to infer which section applies.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Plan Mode vs Direct Execution",
+    "type": "SINGLE_CHOICE",
+    "text": "You need to add Slack as a new notification channel. The existing codebase has clear, consistent patterns for email, SMS, and push channels. However, the Slack API offers fundamentally different integration approaches—incoming webhooks (simple, one-way only), bot tokens (enables delivery confirmation and programmatic control), or Slack Apps (bidirectional events, requires workspace approval). Your ticket says \"add Slack support\" without specifying which integration method or whether advanced features like delivery tracking will be needed. How should you approach this task?",
+    "explanation": "The key problem is not coding but unresolved architectural ambiguity. Plan mode is the best choice because it allows exploration of the integration options and their tradeoffs before committing to an implementation path.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Start direct execution using incoming webhooks to match the existing one-way notification pattern.",
+        "correct": false
+      },
+      {
+        "text": "Start direct execution using the bot token approach to enable delivery confirmation capabilities.",
+        "correct": false
+      },
+      {
+        "text": "Enter plan mode to explore the integration options and their architectural implications, then present a recommendation before implementing.",
+        "correct": true
+      },
+      {
+        "text": "Start direct execution to scaffold the Slack channel class following existing patterns, deferring the integration method decision until later.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Custom Slash Commands",
+    "type": "SINGLE_CHOICE",
+    "text": "You want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository. Where should you create this command file?",
+    "explanation": "A shared project command should live in the repository so every developer receives it automatically when cloning or pulling. The .claude/commands/ directory is the correct location for project-scoped custom slash commands.",
+    "difficulty": "EASY",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "In the .claude/commands/ directory in the project repository.",
+        "correct": true
+      },
+      {
+        "text": "In a .claude/config.json file with a commands array.",
+        "correct": false
+      },
+      {
+        "text": "In ~/.claude/commands/ in each developer's home directory.",
+        "correct": false
+      },
+      {
+        "text": "In the CLAUDE.md file at the project root.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Instruction Organization",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team's CLAUDE.md file has grown to over 500 lines, mixing TypeScript conventions, testing guidelines, API patterns, and deployment procedures. Developers find it difficult to locate and update relevant sections. What approach does Claude Code support for organizing project-level instructions into focused, topic-specific modules?",
+    "explanation": "Breaking project instructions into separate markdown files under .claude/rules/ is the supported modular approach. It makes instructions easier to manage and update by topic instead of keeping everything in one large CLAUDE.md file.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Create separate markdown files in .claude/rules/, each covering one topic (e.g., testing.md, api-conventions.md).",
+        "correct": true
+      },
+      {
+        "text": "Split instructions into README.md files in relevant subdirectories, which Claude automatically loads as instructions.",
+        "correct": false
+      },
+      {
+        "text": "Create multiple files named CLAUDE.md at different levels of the directory tree, each one overriding the parent's instructions.",
+        "correct": false
+      },
+      {
+        "text": "Define a .claude/config.yaml file that maps file patterns to specific sections within CLAUDE.md.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Architectural Refactoring Workflow",
+    "type": "SINGLE_CHOICE",
+    "text": "You've been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies. Which approach should you take?",
+    "explanation": "A large architectural refactor should begin in plan mode because it requires understanding the codebase, evaluating dependencies, and designing a strategy before making changes. Jumping straight into implementation risks poor boundaries and costly rework.",
+    "difficulty": "HARD",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.",
+        "correct": true
+      },
+      {
+        "text": "Use direct execution with comprehensive upfront instructions detailing exactly how each service should be structured.",
+        "correct": false
+      },
+      {
+        "text": "Begin in direct execution mode and only switch to plan mode if you encounter unexpected complexity during implementation.",
+        "correct": false
+      },
+      {
+        "text": "Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "MCP Server Configuration",
+    "type": "SINGLE_CHOICE",
+    "text": "Your team wants to add a GitHub MCP server to enable PR lookups and CI status checks through Claude Code. Each of the six developers has their own GitHub personal access token. You want consistent tooling across the team without committing credentials to version control. What's the most effective configuration approach?",
+    "explanation": "A project-scoped .mcp.json with environment variable expansion provides a shared configuration without storing secrets in version control. Each developer can supply their own token through the documented environment variable.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Configure the server in project scope with a placeholder token value, then instruct developers to override it in their local scope configuration.",
+        "correct": false
+      },
+      {
+        "text": "Create an MCP server wrapper that reads tokens from a .env file and proxies requests to the GitHub API, then add this wrapper to your project .mcp.json.",
+        "correct": false
+      },
+      {
+        "text": "Add the server to a project-scoped .mcp.json with environment variable expansion (${GITHUB_TOKEN}) for authentication, and document the required environment variable in your project README.",
+        "correct": true
+      },
+      {
+        "text": "Have each developer configure the server in user scope with claude mcp add --scope user.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "section": "Code Generation with Claude Code",
+    "topic": "Universal vs Task-Specific Guidance",
+    "type": "SINGLE_CHOICE",
+    "text": "Your CLAUDE.md has grown to over 400 lines containing coding standards, testing conventions, a detailed PR review checklist, deployment workflow instructions, and database migration procedures. You want Claude to always follow the coding standards and testing conventions, but only apply PR review, deployment, and migration guidance when you're actually performing those tasks. What's the most effective restructuring approach?",
+    "explanation": "Universal conventions should remain in CLAUDE.md so they always apply. Task-specific workflows like PR review, deployment, and migrations should be moved into Skills so they are activated only when needed rather than loading all guidance all the time.",
+    "difficulty": "MEDIUM",
+    "sourceType": "STATIC",
+    "options": [
+      {
+        "text": "Move all guidance into separate Skills files organized by workflow type, keeping only a brief project description in CLAUDE.md.",
+        "correct": false
+      },
+      {
+        "text": "Keep universal standards in CLAUDE.md and create Skills for task-specific workflows (PR reviews, deployments, migrations) with trigger keywords.",
+        "correct": true
+      },
+      {
+        "text": "Split the CLAUDE.md into files in .claude/rules/ with path-specific glob patterns so each rule loads only for matching file types.",
+        "correct": false
+      },
+      {
+        "text": "Keep all content in CLAUDE.md but use @import syntax to organize it into separately maintained files by category.",
+        "correct": false
+      }
+    ]
+  }
+]
