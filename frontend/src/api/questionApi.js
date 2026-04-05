@@ -24,3 +24,12 @@ export const getSections = async () => {
   const response = await api.get("/questions/sections");
   return response.data;
 };
+
+export const getTestQuestions = async (count, section, sourceType) => {
+  const params = { count };
+  if (section) params.section = section;
+  if (sourceType) params.sourceType = sourceType;
+
+  const response = await api.get("/questions/test", { params });
+  return response.data;
+};

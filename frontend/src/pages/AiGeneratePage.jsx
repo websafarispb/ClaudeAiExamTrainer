@@ -33,55 +33,82 @@ export default function AiGeneratePage() {
   };
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "24px" }}>
-      <h1>AI Exam Trainer</h1>
-      <h2>AI Generate</h2>
-
-      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "20px" }}>
-        <input
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          style={{ padding: "8px", minWidth: "320px" }}
-        />
-
-        <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="HARD">HARD</option>
-        </select>
-
-        <select value={mode} onChange={(e) => setMode(e.target.value)}>
-          <option value="standard">standard</option>
-          <option value="harder">harder</option>
-          <option value="similar">similar</option>
-        </select>
-
-        <button onClick={handleGenerate}>Generate</button>
-        <button onClick={handleGenerateAndSave}>Generate & Save</button>
+    <div className="container">
+      <div className="page-header">
+        <h2 className="page-title">AI Generate</h2>
+        <p className="page-subtitle">
+          Generate new scenario-based questions for targeted exam preparation.
+        </p>
       </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <div className="card">
+        <div className="controls-row">
+          <input
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            style={{ padding: "8px", minWidth: "320px" }}
+          />
+
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HARD">HARD</option>
+          </select>
+
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+            <option value="standard">standard</option>
+            <option value="harder">harder</option>
+            <option value="similar">similar</option>
+          </select>
+
+          <button onClick={handleGenerate}>Generate</button>
+          <button onClick={handleGenerateAndSave}>Generate & Save</button>
+        </div>
+
+        {!generated && !saved && !error && (
+          <div className="spacer-top">
+            <p className="empty-state">
+              Choose a domain, difficulty, and mode, then generate a new question.
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <p style={{ color: "red", marginTop: "12px" }}>
+            {error}
+          </p>
+        )}
+      </div>
 
       {generated && (
-        <div style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "8px", marginBottom: "20px" }}>
-          <p><strong>Domain:</strong> {generated.domain}</p>
-          <p><strong>Difficulty:</strong> {generated.difficulty}</p>
+        <div className="card">
+          <div className="badges">
+            <span className="badge blue">{generated.domain}</span>
+            <span className="badge">{generated.difficulty}</span>
+          </div>
+
           <h3>{generated.question}</h3>
 
-          <ul>
+          <div>
             {generated.options?.map((option) => (
-              <li key={option.letter}>
-                <strong>{option.letter}:</strong> {option.text}
-              </li>
+              <div key={option.letter} className="option">
+                <strong>{option.letter}.</strong> {option.text}
+              </div>
             ))}
-          </ul>
+          </div>
 
-          <p><strong>Correct answer:</strong> {generated.correctAnswer}</p>
-          <p><strong>Explanation:</strong> {generated.explanation}</p>
+          <div className="spacer-top">
+            <p>
+              <strong>Correct answer:</strong> {generated.correctAnswer}
+            </p>
+            <p>
+              <strong>Explanation:</strong> {generated.explanation}
+            </p>
+          </div>
         </div>
       )}
 
       {saved && (
-        <div style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "8px" }}>
+        <div className="card">
           <h3>Saved Question</h3>
           <p><strong>ID:</strong> {saved.id}</p>
           <p><strong>Section:</strong> {saved.section}</p>
