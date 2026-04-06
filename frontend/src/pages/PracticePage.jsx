@@ -3,8 +3,11 @@ import FilterBar from "../components/FilterBar";
 import QuestionCard from "../components/QuestionCard";
 import AnswerResult from "../components/AnswerResult";
 import { getRandomQuestion, submitAnswer, getSections } from "../api/questionApi";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function PracticePage() {
+  const { t } = useLanguage();
+
   const [sections, setSections] = useState([]);
   const [section, setSection] = useState("");
   const [sourceType, setSourceType] = useState("");
@@ -22,7 +25,7 @@ export default function PracticePage() {
       const data = await getSections();
       setSections(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to load sections");
+      setError(e?.response?.data?.message || t.loadingSectionsError);
     }
   };
 
@@ -37,7 +40,7 @@ export default function PracticePage() {
     } catch (e) {
       setQuestion(null);
       setResult(null);
-      setError(e?.response?.data?.message || "Failed to load question");
+      setError(e?.response?.data?.message || t.loadQuestionError);
     }
   };
 
@@ -49,7 +52,7 @@ export default function PracticePage() {
       const data = await submitAnswer(question.id, selectedOptionId);
       setResult(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to submit answer");
+      setError(e?.response?.data?.message || t.submitAnswerError);
     }
   };
 
@@ -60,10 +63,8 @@ export default function PracticePage() {
   return (
     <div className="container">
       <div className="page-header">
-        <h2 className="page-title">Practice Mode</h2>
-        <p className="page-subtitle">
-          Choose a section and source, then load a random question for focused practice.
-        </p>
+        <h2 className="page-title">{t.practiceTitle}</h2>
+        <p className="page-subtitle">{t.practiceSubtitle}</p>
       </div>
 
       <div className="card">
@@ -78,10 +79,7 @@ export default function PracticePage() {
 
         {!question && !error && (
           <div className="spacer-top">
-            <p className="empty-state">
-              No question loaded yet. Select filters and click{" "}
-              <strong>Get random question</strong>.
-            </p>
+            <p className="empty-state">{t.noQuestionLoaded}</p>
           </div>
         )}
 

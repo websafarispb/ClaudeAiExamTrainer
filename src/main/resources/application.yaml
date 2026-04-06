@@ -24,3 +24,10 @@ spring:
 app:
   questions:
     auto-import: true
+
+anthropic:
+  api:
+    key: ${ANTHROPIC_API_KEY:}
+    url: https://api.anthropic.com/v1/messages
+    model: claude-sonnet-4-6
+    version: 2023-06-01

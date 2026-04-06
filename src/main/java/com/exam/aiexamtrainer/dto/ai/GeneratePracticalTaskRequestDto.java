@@ -5,11 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GenerateQuestionRequestDto {
+public class GeneratePracticalTaskRequestDto {
 
   private String provider;
   private String domain;
   private String difficulty;
-  private String mode;
-  private String baseQuestion;
 }
