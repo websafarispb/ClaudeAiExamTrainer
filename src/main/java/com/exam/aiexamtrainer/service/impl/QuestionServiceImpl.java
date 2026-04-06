@@ -1,5 +1,7 @@
 package com.exam.aiexamtrainer.service.impl;
 
+import static java.util.stream.Collectors.toList;
+
 import com.exam.aiexamtrainer.dto.question.QuestionResponseDto;
 import com.exam.aiexamtrainer.dto.question.SubmitAnswerResponseDto;
 import com.exam.aiexamtrainer.entity.AnswerOption;
@@ -10,6 +12,8 @@ import com.exam.aiexamtrainer.exception.NotFoundException;
 import com.exam.aiexamtrainer.mapper.QuestionMapper;
 import com.exam.aiexamtrainer.repository.QuestionRepository;
 import com.exam.aiexamtrainer.service.QuestionService;
+import java.util.ArrayList;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -77,6 +81,32 @@ public class QuestionServiceImpl implements QuestionService {
   public List<String> getSections() {
 
     return questionRepository.findDistinctActiveSections();
+  }
+
+  @Override
+  public List<QuestionResponseDto> getTestQuestions(int count, String section, String sourceType) {
+
+    if (count <= 0) {
+      throw new BadRequestException("Count must be greater than 0");
+    }
+
+    List<Question> filteredQuestions = findQuestions(section, sourceType);
+
+    if (filteredQuestions.isEmpty()) {
+      throw new NotFoundException("No questions found for provided filters");
+    }
+
+    if (count > filteredQuestions.size()) {
+      throw new BadRequestException("Requested count exceeds available questions: " + filteredQuestions.size());
+    }
+
+    List<Question> shuffledQuestions = new ArrayList<>(filteredQuestions);
+    Collections.shuffle(shuffledQuestions);
+
+    return shuffledQuestions.stream()
+        .limit(count)
+        .map(questionMapper::toDto)
+        .collect(toList());
   }
 
   private List<Question> findQuestions(String section, String sourceType) {

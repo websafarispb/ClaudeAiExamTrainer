@@ -31,6 +31,7 @@ export default function PracticePage() {
       setError("");
       setResult(null);
       setSelectedOptionId(null);
+
       const data = await getRandomQuestion(section, sourceType);
       setQuestion(data);
     } catch (e) {
@@ -57,28 +58,49 @@ export default function PracticePage() {
   };
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "24px" }}>
-      <h1>AI Exam Trainer</h1>
-      <h2>Practice Mode</h2>
+    <div className="container">
+      <div className="page-header">
+        <h2 className="page-title">Practice Mode</h2>
+        <p className="page-subtitle">
+          Choose a section and source, then load a random question for focused practice.
+        </p>
+      </div>
 
-      <FilterBar
-        sections={sections}
-        section={section}
-        setSection={setSection}
-        sourceType={sourceType}
-        setSourceType={setSourceType}
-        onLoadQuestion={loadQuestion}
-      />
+      <div className="card">
+        <FilterBar
+          sections={sections}
+          section={section}
+          setSection={setSection}
+          sourceType={sourceType}
+          setSourceType={setSourceType}
+          onLoadQuestion={loadQuestion}
+        />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {!question && !error && (
+          <div className="spacer-top">
+            <p className="empty-state">
+              No question loaded yet. Select filters and click{" "}
+              <strong>Get random question</strong>.
+            </p>
+          </div>
+        )}
 
-      <QuestionCard
-        question={question}
-        selectedOptionId={selectedOptionId}
-        setSelectedOptionId={setSelectedOptionId}
-        onSubmit={handleSubmit}
-        isAnswered={!!result}
-      />
+        {error && (
+          <p style={{ color: "red", marginTop: "12px" }}>
+            {error}
+          </p>
+        )}
+      </div>
+
+      {question && (
+        <QuestionCard
+          question={question}
+          selectedOptionId={selectedOptionId}
+          setSelectedOptionId={setSelectedOptionId}
+          onSubmit={handleSubmit}
+          isAnswered={!!result}
+        />
+      )}
 
       <AnswerResult result={result} onNext={handleNext} />
     </div>

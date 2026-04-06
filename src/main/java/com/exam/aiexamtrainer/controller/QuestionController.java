@@ -16,6 +16,15 @@ public class QuestionController {
 
   private final QuestionService questionService;
 
+  @GetMapping("/test")
+  public List<QuestionResponseDto> getTestQuestions(
+      @RequestParam int count,
+      @RequestParam(required = false) String section,
+      @RequestParam(required = false) String sourceType) {
+
+    return questionService.getTestQuestions(count, section, sourceType);
+  }
+
   @GetMapping("/random")
   public QuestionResponseDto getRandomQuestion(
       @RequestParam(required = false) String section,

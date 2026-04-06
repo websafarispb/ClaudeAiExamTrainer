@@ -8,6 +8,8 @@ public interface QuestionService {
 
   QuestionResponseDto getRandomQuestion(String section, String sourceType);
 
+  List<QuestionResponseDto> getTestQuestions(int count, String section, String sourceType);
+
   QuestionResponseDto getQuestionById(Long id);
 
   SubmitAnswerResponseDto submitAnswer(Long questionId, Long selectedOptionId);

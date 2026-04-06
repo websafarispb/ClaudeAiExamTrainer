@@ -5,37 +5,37 @@ export default function QuestionCard({
   onSubmit,
   isAnswered,
 }) {
-  if (!question) {
-    return <p>No question loaded yet.</p>;
-  }
+  if (!question) return <div className="card compact">
+                          <p className="empty-state">
+                            No question loaded yet. Select filters and click <strong>Get random question</strong>.
+                          </p>
+                        </div>
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "8px" }}>
+    <div className="card">
+      <div className="badges">
+        <span className="badge blue">{question.section}</span>
+        <span className="badge">{question.difficulty}</span>
+        <span className="badge">{question.sourceType}</span>
+      </div>
+
       <h3>{question.text}</h3>
 
-      <p><strong>Section:</strong> {question.section}</p>
-      <p><strong>Difficulty:</strong> {question.difficulty}</p>
-
       <div>
-        {question.options?.map((option) => (
-          <label key={option.id} style={{ display: "block", marginBottom: "10px" }}>
-            <input
-              type="radio"
-              name="answer"
-              value={option.id}
-              checked={selectedOptionId === option.id}
-              disabled={isAnswered}
-              onChange={() => setSelectedOptionId(option.id)}
-              style={{ marginRight: "8px" }}
-            />
-            {option.text}
-          </label>
+        {question.options.map((opt) => (
+          <div
+            key={opt.id}
+            className={`option ${selectedOptionId === opt.id ? "selected" : ""}`}
+            onClick={() => !isAnswered && setSelectedOptionId(opt.id)}
+          >
+            {opt.text}
+          </div>
         ))}
       </div>
 
       {!isAnswered && (
-        <button onClick={onSubmit} disabled={!selectedOptionId}>
-          Submit answer
+        <button style={{ marginTop: "16px" }} onClick={onSubmit}>
+          Submit
         </button>
       )}
     </div>
