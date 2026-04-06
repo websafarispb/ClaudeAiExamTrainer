@@ -2,26 +2,19 @@ import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
 import PracticePage from "./pages/PracticePage";
 import AiGeneratePage from "./pages/AiGeneratePage";
 import TestPage from "./pages/TestPage";
-
-function PracticalTasksPage() {
-  return (
-    <div className="container">
-      <div className="card">
-        <h2>Practical Tasks</h2>
-        <p>This page is coming next.</p>
-      </div>
-    </div>
-  );
-}
+import PracticalTasksPage from "./pages/PracticalTasksPage";
+import { useLanguage } from "./i18n/LanguageContext";
 
 export default function App() {
+  const { language, setLanguage, t } = useLanguage();
+
   return (
     <BrowserRouter>
       <header className="app-header">
         <div className="app-header-inner">
           <div className="app-brand">
-            <span className="app-brand-title">AI Exam Trainer</span>
-            <span className="app-brand-subtitle">MVP</span>
+            <span className="app-brand-title">{t.appTitle}</span>
+            <span className="app-brand-subtitle">{t.mvp}</span>
           </div>
 
           <nav className="app-nav">
@@ -32,7 +25,7 @@ export default function App() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              Practice
+              {t.navPractice}
             </NavLink>
 
             <NavLink
@@ -41,7 +34,7 @@ export default function App() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              Mini Test
+              {t.navMiniTest}
             </NavLink>
 
             <NavLink
@@ -50,7 +43,7 @@ export default function App() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              AI Generate
+              {t.navAiGenerate}
             </NavLink>
 
             <NavLink
@@ -59,9 +52,24 @@ export default function App() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              Practical Tasks
+              {t.navPracticalTasks}
             </NavLink>
           </nav>
+
+          <div className="language-switcher">
+            <button
+              className={language === "EN" ? "lang-btn active" : "lang-btn"}
+              onClick={() => setLanguage("EN")}
+            >
+              EN
+            </button>
+            <button
+              className={language === "RU" ? "lang-btn active" : "lang-btn"}
+              onClick={() => setLanguage("RU")}
+            >
+              RU
+            </button>
+          </div>
         </div>
       </header>
 

@@ -13,3 +13,18 @@ export const generateAndSaveQuestion = async (payload) => {
   const response = await api.post("/ai/generate-and-save-question", payload);
   return response.data;
 };
+
+export const generatePracticalTask = async (payload) => {
+  const response = await api.post("/ai/generate-practical-task", payload);
+  return response.data;
+};
+
+export const saveGeneratedQuestion = async (payload) => {
+  const response = await api.post("/ai/save-generated-question", payload);
+  return response.data;
+};
+
+export const translateQuestion = async (payload) => {
+  const response = await api.post("/ai/translate-question", payload);
+  return response.data;
+};

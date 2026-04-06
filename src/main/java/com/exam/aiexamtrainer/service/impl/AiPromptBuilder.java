@@ -1,6 +1,9 @@
 package com.exam.aiexamtrainer.service.impl;
 
+import com.exam.aiexamtrainer.dto.ai.GeneratePracticalTaskRequestDto;
 import com.exam.aiexamtrainer.dto.ai.GenerateQuestionRequestDto;
+import com.exam.aiexamtrainer.dto.ai.GenerateQuestionResponseDto;
+import com.exam.aiexamtrainer.dto.ai.GeneratedOptionDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -98,6 +101,101 @@ public class AiPromptBuilder {
     }
 
     return prompt.toString();
+  }
+
+  public String buildPracticalTaskSystemPrompt() {
+
+    return """
+        You are generating high-quality practical tasks for the "Claude Certified Architect – Foundations" exam preparation.
+        
+        Your goal is to create realistic scenario-based practice tasks that test architecture judgment, tool design thinking, context management, and production decision-making.
+        
+        REQUIREMENTS:
+        1. Output ONLY valid JSON.
+        2. Do not include markdown.
+        3. Do not include commentary.
+        4. Do not wrap the JSON in code fences.
+        5. The task must feel realistic and production-oriented.
+        6. Difficulty must be MEDIUM or HARD.
+        
+        JSON structure:
+        {
+          "domain": "string",
+          "difficulty": "MEDIUM or HARD",
+          "title": "string",
+          "scenario": "string",
+          "task": "string",
+          "whatToCover": ["string", "string", "string"],
+          "sampleApproach": "string"
+        }
+        """;
+  }
+
+  public String buildPracticalTaskUserPrompt(GeneratePracticalTaskRequestDto request) {
+
+    String domain = valueOrDefault(request.getDomain(), "Prompt Engineering & Structured Output");
+    String difficulty = valueOrDefault(request.getDifficulty(), "MEDIUM");
+
+    return """
+        Generate one practical task.
+        
+        Constraints:
+        - Domain: %s
+        - Difficulty: %s
+        - Language: English
+        """.formatted(domain, difficulty);
+  }
+
+  public String buildTranslateQuestionSystemPrompt() {
+
+    return """
+        You are translating an AI exam practice question from English to Russian.
+        
+        REQUIREMENTS:
+        1. Translate naturally into Russian.
+        2. Preserve the original meaning exactly.
+        3. Keep answer option letters unchanged.
+        4. Do not explain anything.
+        5. Return ONLY valid JSON.
+        6. Do not wrap the JSON in markdown.
+        
+        JSON structure:
+        {
+          "question": "string",
+          "options": [
+            { "letter": "A", "text": "string" },
+            { "letter": "B", "text": "string" },
+            { "letter": "C", "text": "string" },
+            { "letter": "D", "text": "string" }
+          ],
+          "explanation": "string"
+        }
+        """;
+  }
+
+  public String buildTranslateQuestionUserPrompt(GenerateQuestionResponseDto question) {
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Translate this question into Russian.\n\n");
+    sb.append("Question:\n")
+        .append(question.getQuestion())
+        .append("\n\n");
+    sb.append("Options:\n");
+
+    if (question.getOptions() != null) {
+      for (GeneratedOptionDto option : question.getOptions()) {
+        sb.append(option.getLetter())
+            .append(") ")
+            .append(option.getText())
+            .append("\n");
+      }
+    }
+
+    sb.append("\nExplanation:\n")
+        .append(question.getExplanation());
+
+    return sb.toString();
   }
 
   private String valueOrDefault(String value, String defaultValue) {

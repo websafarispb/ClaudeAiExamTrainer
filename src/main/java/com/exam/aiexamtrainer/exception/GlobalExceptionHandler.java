@@ -34,4 +34,17 @@ public class GlobalExceptionHandler {
         "message", ex.getMessage()
     );
   }
+
+  @ExceptionHandler(DuplicateQuestionException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public Map<String, Object> handleDuplicateQuestion(DuplicateQuestionException ex) {
+
+    return Map.of(
+        "timestamp", LocalDateTime.now()
+            .toString(),
+        "status", 409,
+        "error", "Conflict",
+        "message", ex.getMessage()
+    );
+  }
 }

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { getSections, getTestQuestions, submitAnswer } from "../api/questionApi";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function TestPage() {
+  const { t } = useLanguage();
+
   const [sections, setSections] = useState([]);
   const [section, setSection] = useState("");
   const [sourceType, setSourceType] = useState("");
@@ -26,7 +29,7 @@ export default function TestPage() {
       const data = await getSections();
       setSections(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to load sections");
+      setError(e?.response?.data?.message || t.loadingSectionsError);
     }
   };
 
@@ -44,7 +47,7 @@ export default function TestPage() {
       const data = await getTestQuestions(count, section, sourceType);
       setQuestions(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to start test");
+      setError(e?.response?.data?.message || t.startTestError);
     }
   };
 
@@ -126,7 +129,7 @@ export default function TestPage() {
 
       setFinished(true);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to finish test");
+      setError(e?.response?.data?.message || t.finishTestError);
     }
   };
 
@@ -178,12 +181,10 @@ export default function TestPage() {
     <div className="container">
       <div className="page-header">
         <h2 className="page-title">
-          {retryMode ? "Retry Mistakes Mode" : "Mini Test Mode"}
+          {retryMode ? t.retryMistakesTitle : t.miniTestTitle}
         </h2>
         <p className="page-subtitle">
-          {retryMode
-            ? "Retry only the questions you answered incorrectly."
-            : "Create a short quiz to check your progress and review mistakes afterwards."}
+          {retryMode ? t.retryMistakesSubtitle : t.miniTestSubtitle}
         </p>
       </div>
 
@@ -191,7 +192,7 @@ export default function TestPage() {
         <div className="card">
           <div className="controls-row">
             <select value={section} onChange={(e) => setSection(e.target.value)}>
-              <option value="">All sections</option>
+              <option value="">{t.allSections}</option>
               {sections.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -203,24 +204,22 @@ export default function TestPage() {
               value={sourceType}
               onChange={(e) => setSourceType(e.target.value)}
             >
-              <option value="">All sources</option>
-              <option value="STATIC">STATIC</option>
-              <option value="AI_GENERATED">AI_GENERATED</option>
+              <option value="">{t.allSources}</option>
+              <option value="STATIC">{t.static}</option>
+              <option value="AI_GENERATED">{t.aiGenerated}</option>
             </select>
 
             <select value={count} onChange={(e) => setCount(Number(e.target.value))}>
-              <option value={5}>5 questions</option>
-              <option value={10}>10 questions</option>
-              <option value={15}>15 questions</option>
+              <option value={5}>{t.fiveQuestions}</option>
+              <option value={10}>{t.tenQuestions}</option>
+              <option value={15}>{t.fifteenQuestions}</option>
             </select>
 
-            <button onClick={startTest}>Start test</button>
+            <button onClick={startTest}>{t.startTest}</button>
           </div>
 
           <div className="spacer-top">
-            <p className="empty-state">
-              Configure your mini test and click <strong>Start test</strong>.
-            </p>
+            <p className="empty-state">{t.startTestHint}</p>
           </div>
 
           {error && <p style={{ color: "red", marginTop: "12px" }}>{error}</p>}
@@ -232,9 +231,9 @@ export default function TestPage() {
           <div className="progress-wrapper">
             <div className="progress-label">
               <span>
-                Question {currentIndex + 1} of {questions.length}
+                {t.questionProgress} {currentIndex + 1} / {questions.length}
               </span>
-              <span>{progressPercent}% completed</span>
+              <span>{progressPercent}% {t.completed}</span>
             </div>
 
             <div className="progress-bar">
@@ -248,8 +247,12 @@ export default function TestPage() {
           </div>
 
           <div className="badges">
-            <span className="badge blue">{currentQuestion.section}</span>
-            <span className="badge">{currentQuestion.difficulty}</span>
+            <span className="badge blue">
+              {t.section}: {currentQuestion.section}
+            </span>
+            <span className="badge">
+              {t.difficulty}: {currentQuestion.difficulty}
+            </span>
           </div>
 
           <h3>{currentQuestion.text}</h3>
@@ -271,7 +274,7 @@ export default function TestPage() {
             onClick={handleNext}
             disabled={!selectedOptionId}
           >
-            {currentIndex + 1 === questions.length ? "Finish test" : "Next"}
+            {currentIndex + 1 === questions.length ? t.finishTest : t.next}
           </button>
 
           {error && <p style={{ color: "red", marginTop: "12px" }}>{error}</p>}
@@ -280,35 +283,35 @@ export default function TestPage() {
 
       {finished && result && (
         <div className="card">
-          <h3>Test Result</h3>
-          <p><strong>Total:</strong> {result.total}</p>
-          <p><strong>Correct:</strong> {result.correct}</p>
-          <p><strong>Incorrect:</strong> {result.incorrect}</p>
-          <p><strong>Score:</strong> {result.score1000} / 1000</p>
-          <p><strong>Passing score:</strong> 700</p>
+          <h3>{t.result}</h3>
+          <p><strong>{t.total}:</strong> {result.total}</p>
+          <p><strong>{t.correct}:</strong> {result.correct}</p>
+          <p><strong>{t.incorrect}:</strong> {result.incorrect}</p>
+          <p><strong>{t.score}:</strong> {result.score1000} / 1000</p>
+          <p><strong>{t.passingScore}:</strong> 700</p>
           <p>
-            <strong>Status:</strong>{" "}
-            {result.score1000 >= 700 ? "Passed" : "Not passed yet"}
+            <strong>{t.status}:</strong>{" "}
+            {result.score1000 >= 700 ? t.passed : t.notPassedYet}
           </p>
-          <p><strong>Elapsed time:</strong> {formatElapsedTime(result.elapsedMs)}</p>
+          <p><strong>{t.elapsedTime}:</strong> {formatElapsedTime(result.elapsedMs)}</p>
 
           <div style={{ marginTop: "20px" }}>
-            <h4>Mistakes Review</h4>
+            <h4>{t.mistakesReview}</h4>
 
             {result.details
               .filter((item) => !item.correct)
               .map((item, index) => (
                 <div key={index} className="card" style={{ marginTop: "12px" }}>
-                  <p><strong>Section:</strong> {item.section}</p>
-                  <p><strong>Question:</strong> {item.questionText}</p>
-                  <p><strong>Your answer:</strong> {item.selectedAnswerText}</p>
-                  <p><strong>Correct answer:</strong> {item.correctAnswer}</p>
-                  <p><strong>Explanation:</strong> {item.explanation}</p>
+                  <p><strong>{t.section}:</strong> {item.section}</p>
+                  <p><strong>{t.question}:</strong> {item.questionText}</p>
+                  <p><strong>{t.yourAnswer}:</strong> {item.selectedAnswerText}</p>
+                  <p><strong>{t.correctAnswer}:</strong> {item.correctAnswer}</p>
+                  <p><strong>{t.explanation}:</strong> {item.explanation}</p>
                 </div>
               ))}
 
             {result.incorrect === 0 && (
-              <p className="empty-state">Perfect score. No mistakes to review.</p>
+              <p className="empty-state">{t.perfectScore}</p>
             )}
           </div>
 
@@ -321,10 +324,10 @@ export default function TestPage() {
             }}
           >
             {result.incorrect > 0 && (
-              <button onClick={retryMistakes}>Retry mistakes only</button>
+              <button onClick={retryMistakes}>{t.retryMistakesOnly}</button>
             )}
 
-            <button onClick={resetTest}>Start new test</button>
+            <button onClick={resetTest}>{t.startNewTest}</button>
           </div>
         </div>
       )}

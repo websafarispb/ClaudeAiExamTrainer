@@ -1,3 +1,5 @@
+import { useLanguage } from "../i18n/LanguageContext";
+
 export default function FilterBar({
   sections,
   section,
@@ -6,10 +8,12 @@ export default function FilterBar({
   setSourceType,
   onLoadQuestion,
 }) {
+  const { t } = useLanguage();
+
   return (
-    <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
-      <select value={section} onChange={(e) => setSection(e.target.value)} style={{ padding: "8px", minWidth: "280px" }}>
-        <option value="">All sections</option>
+    <div className="controls-row">
+      <select value={section} onChange={(e) => setSection(e.target.value)}>
+        <option value="">{t.allSections}</option>
         {sections.map((item) => (
           <option key={item} value={item}>
             {item}
@@ -20,14 +24,13 @@ export default function FilterBar({
       <select
         value={sourceType}
         onChange={(e) => setSourceType(e.target.value)}
-        style={{ padding: "8px" }}
       >
-        <option value="">All sources</option>
-        <option value="STATIC">STATIC</option>
-        <option value="AI_GENERATED">AI_GENERATED</option>
+        <option value="">{t.allSources}</option>
+        <option value="STATIC">{t.static}</option>
+        <option value="AI_GENERATED">{t.aiGenerated}</option>
       </select>
 
-      <button onClick={onLoadQuestion}>Get random question</button>
+      <button onClick={onLoadQuestion}>{t.getRandomQuestion}</button>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { useLanguage } from "../i18n/LanguageContext";
+
 export default function QuestionCard({
   question,
   selectedOptionId,
@@ -5,37 +7,40 @@ export default function QuestionCard({
   onSubmit,
   isAnswered,
 }) {
-  if (!question) return <div className="card compact">
-                          <p className="empty-state">
-                            No question loaded yet. Select filters and click <strong>Get random question</strong>.
-                          </p>
-                        </div>
+  const { t } = useLanguage();
+
+  if (!question) {
+    return null;
+  }
 
   return (
     <div className="card">
       <div className="badges">
-        <span className="badge blue">{question.section}</span>
-        <span className="badge">{question.difficulty}</span>
-        <span className="badge">{question.sourceType}</span>
+        <span className="badge blue">
+          {t.section}: {question.section}
+        </span>
+        <span className="badge">
+          {t.difficulty}: {question.difficulty}
+        </span>
       </div>
 
       <h3>{question.text}</h3>
 
       <div>
-        {question.options.map((opt) => (
+        {question.options?.map((option) => (
           <div
-            key={opt.id}
-            className={`option ${selectedOptionId === opt.id ? "selected" : ""}`}
-            onClick={() => !isAnswered && setSelectedOptionId(opt.id)}
+            key={option.id}
+            className={`option ${selectedOptionId === option.id ? "selected" : ""}`}
+            onClick={() => !isAnswered && setSelectedOptionId(option.id)}
           >
-            {opt.text}
+            {option.text}
           </div>
         ))}
       </div>
 
       {!isAnswered && (
         <button style={{ marginTop: "16px" }} onClick={onSubmit}>
-          Submit
+          {t.submit}
         </button>
       )}
     </div>
