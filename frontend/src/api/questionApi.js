@@ -1,8 +1,5 @@
 import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://localhost:8080/api",
-});
+import api from "./apiClient";
 
 export const getRandomQuestion = async (section, sourceType) => {
   const params = {};
