@@ -68,3 +68,10 @@ Test coverage
 👨‍💻 Author
 
 Evgenii Stepanov email: penumbraspb@gmail.com
+
+docker run -p 3000:80 ai-exam-frontend
+
+docker run -p 8080:8080 ai-exam-backend
+
+docker-compose up --build
+docker-compose down

@@ -4,15 +4,20 @@ import com.exam.aiexamtrainer.dto.ai.GeneratePracticalTaskRequestDto;
 import com.exam.aiexamtrainer.dto.ai.GeneratePracticalTaskResponseDto;
 import com.exam.aiexamtrainer.dto.ai.GenerateQuestionRequestDto;
 import com.exam.aiexamtrainer.dto.ai.GenerateQuestionResponseDto;
+import com.exam.aiexamtrainer.dto.ai.PracticalTaskResponseDto;
+import com.exam.aiexamtrainer.dto.ai.TranslatePracticalTaskRequestDto;
+import com.exam.aiexamtrainer.dto.ai.TranslatePracticalTaskResponseDto;
 import com.exam.aiexamtrainer.dto.ai.TranslateQuestionRequestDto;
 import com.exam.aiexamtrainer.dto.ai.TranslateQuestionResponseDto;
 import com.exam.aiexamtrainer.dto.question.QuestionResponseDto;
+import com.exam.aiexamtrainer.entity.PracticalTask;
 import com.exam.aiexamtrainer.entity.Question;
 import com.exam.aiexamtrainer.enums.LlmProvider;
 import com.exam.aiexamtrainer.exception.BadRequestException;
 import com.exam.aiexamtrainer.exception.DuplicateQuestionException;
 import com.exam.aiexamtrainer.mapper.AiGeneratedQuestionMapper;
 import com.exam.aiexamtrainer.mapper.QuestionMapper;
+import com.exam.aiexamtrainer.repository.PracticalTaskRepository;
 import com.exam.aiexamtrainer.repository.QuestionRepository;
 import com.exam.aiexamtrainer.service.AiQuestionGenerationService;
 import com.exam.aiexamtrainer.service.LlmClient;
@@ -31,6 +36,7 @@ public class AiQuestionGenerationServiceImpl implements AiQuestionGenerationServ
   private final ObjectMapper objectMapper;
   private final AiGeneratedQuestionMapper aiGeneratedQuestionMapper;
   private final QuestionRepository questionRepository;
+  private final PracticalTaskRepository practicalTaskRepository;
   private final QuestionMapper questionMapper;
 
   @Override
@@ -127,6 +133,108 @@ public class AiQuestionGenerationServiceImpl implements AiQuestionGenerationServ
     }
   }
 
+  @Override
+  public TranslatePracticalTaskResponseDto translatePracticalTask(TranslatePracticalTaskRequestDto request) {
+
+    if (request == null || request.getTask() == null) {
+      throw new BadRequestException("Practical task is required for translation");
+    }
+
+    String systemPrompt = aiPromptBuilder.buildTranslatePracticalTaskSystemPrompt();
+    String userPrompt = aiPromptBuilder.buildTranslatePracticalTaskUserPrompt(request.getTask());
+
+    LlmClient client = resolveClient(request.getProvider());
+    String rawResponse = client.generate(systemPrompt, userPrompt);
+
+    try {
+      System.out.println("RAW PRACTICAL TASK TRANSLATION RESPONSE:");
+      System.out.println(rawResponse);
+      TranslatePracticalTaskResponseDto response =
+          objectMapper.readValue(rawResponse, TranslatePracticalTaskResponseDto.class);
+
+      validateTranslatedPracticalTaskResponse(response);
+
+      return response;
+    }
+    catch (Exception e) {
+      throw new BadRequestException("Failed to parse translated practical task response");
+    }
+  }
+
+  @Override
+  public PracticalTaskResponseDto saveGeneratedPracticalTask(GeneratePracticalTaskResponseDto taskDto) {
+
+    if (taskDto == null) {
+      throw new BadRequestException("Task is required");
+    }
+
+    if (practicalTaskRepository.existsByTitle(taskDto.getTitle())) {
+      throw new DuplicateQuestionException("This practical task already exists");
+    }
+
+    PracticalTask entity = new PracticalTask();
+    entity.setTitle(taskDto.getTitle());
+    entity.setScenario(taskDto.getScenario());
+    entity.setTask(taskDto.getTask());
+    entity.setWhatToCover(taskDto.getWhatToCover());
+    entity.setSampleApproach(taskDto.getSampleApproach());
+
+    PracticalTask saved = practicalTaskRepository.save(entity);
+
+    return mapToDto(saved);
+  }
+
+  @Override
+  public List<PracticalTaskResponseDto> getAllPracticalTasks() {
+
+    return practicalTaskRepository.findAll()
+        .stream()
+        .map(this::mapToDto)
+        .toList();
+  }
+
+  private PracticalTaskResponseDto mapToDto(PracticalTask entity) {
+
+    PracticalTaskResponseDto dto = new PracticalTaskResponseDto();
+
+    dto.setId(entity.getId());
+    dto.setTitle(entity.getTitle());
+    dto.setScenario(entity.getScenario());
+    dto.setTask(entity.getTask());
+    dto.setWhatToCover(entity.getWhatToCover());
+    dto.setSampleApproach(entity.getSampleApproach());
+
+    return dto;
+  }
+
+  private void validateTranslatedPracticalTaskResponse(TranslatePracticalTaskResponseDto response) {
+
+    if (response.getTitle() == null || response.getTitle()
+        .isBlank()) {
+      throw new BadRequestException("Translated practical task title is missing");
+    }
+
+    if (response.getScenario() == null || response.getScenario()
+        .isBlank()) {
+      throw new BadRequestException("Translated practical task scenario is missing");
+    }
+
+    if (response.getTask() == null || response.getTask()
+        .isBlank()) {
+      throw new BadRequestException("Translated practical task text is missing");
+    }
+
+    if (response.getWhatToCover() == null || response.getWhatToCover()
+        .isEmpty()) {
+      throw new BadRequestException("Translated practical task whatToCover is missing");
+    }
+
+    if (response.getSampleApproach() == null || response.getSampleApproach()
+        .isBlank()) {
+      throw new BadRequestException("Translated practical task sampleApproach is missing");
+    }
+  }
+
   private void validateTranslatedQuestionResponse(TranslateQuestionResponseDto response) {
 
     if (response.getQuestion() == null || response.getQuestion()
@@ -137,11 +245,6 @@ public class AiQuestionGenerationServiceImpl implements AiQuestionGenerationServ
     if (response.getOptions() == null || response.getOptions()
         .size() != 4) {
       throw new BadRequestException("Translated question must contain exactly 4 options");
-    }
-
-    if (response.getExplanation() == null || response.getExplanation()
-        .isBlank()) {
-      throw new BadRequestException("Translated explanation is missing");
     }
   }
 

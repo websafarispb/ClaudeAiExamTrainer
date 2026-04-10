@@ -1,6 +1,7 @@
 package com.exam.aiexamtrainer.service.impl;
 
 import com.exam.aiexamtrainer.dto.ai.GeneratePracticalTaskRequestDto;
+import com.exam.aiexamtrainer.dto.ai.GeneratePracticalTaskResponseDto;
 import com.exam.aiexamtrainer.dto.ai.GenerateQuestionRequestDto;
 import com.exam.aiexamtrainer.dto.ai.GenerateQuestionResponseDto;
 import com.exam.aiexamtrainer.dto.ai.GeneratedOptionDto;
@@ -158,6 +159,7 @@ public class AiPromptBuilder {
         4. Do not explain anything.
         5. Return ONLY valid JSON.
         6. Do not wrap the JSON in markdown.
+        7. Explanation may be empty. If no explanation is provided, return an empty string.
         
         JSON structure:
         {
@@ -192,8 +194,66 @@ public class AiPromptBuilder {
       }
     }
 
-    sb.append("\nExplanation:\n")
-        .append(question.getExplanation());
+    sb.append("\nExplanation:\n");
+    sb.append(question.getExplanation() == null ? "" : question.getExplanation());
+
+    return sb.toString();
+  }
+
+  public String buildTranslatePracticalTaskSystemPrompt() {
+
+    return """
+        You are translating a practical architecture task from English to Russian.
+        
+        REQUIREMENTS:
+        1. Translate naturally into Russian.
+        2. Preserve the original meaning exactly.
+        3. Do not explain anything.
+        4. Return ONLY valid JSON.
+        5. Do not wrap the JSON in markdown.
+        6. Do not add comments before or after the JSON.
+        7. Keep the response concise but complete.
+        8. Do not omit any field.
+        9. Keep "whatToCover" as a JSON array of strings.
+        10. Keep "whatToCover" items short but preserve meaning.
+        
+        JSON structure:
+        {
+          "title": "string",
+          "scenario": "string",
+          "task": "string",
+          "whatToCover": ["string", "string", "string"],
+          "sampleApproach": "string"
+        }
+        """;
+  }
+
+  public String buildTranslatePracticalTaskUserPrompt(GeneratePracticalTaskResponseDto task) {
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Translate this practical task into Russian.\n\n");
+    sb.append("Title:\n")
+        .append(task.getTitle())
+        .append("\n\n");
+    sb.append("Scenario:\n")
+        .append(task.getScenario())
+        .append("\n\n");
+    sb.append("Task:\n")
+        .append(task.getTask())
+        .append("\n\n");
+    sb.append("What to cover:\n");
+
+    if (task.getWhatToCover() != null) {
+      for (String item : task.getWhatToCover()) {
+        sb.append("- ")
+            .append(item)
+            .append("\n");
+      }
+    }
+
+    sb.append("\nSample approach:\n")
+        .append(task.getSampleApproach());
 
     return sb.toString();
   }

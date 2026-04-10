@@ -36,7 +36,7 @@ public class ClaudeApiLlmClient implements LlmClient {
 
     Map<String, Object> requestBody = Map.of(
         "model", properties.model(),
-        "max_tokens", 1200,
+        "max_tokens", 3000,
         "system", systemPrompt,
         "messages", List.of(
             Map.of(
