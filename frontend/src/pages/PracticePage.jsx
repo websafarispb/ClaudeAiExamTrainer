@@ -3,6 +3,7 @@ import FilterBar from "../components/FilterBar";
 import QuestionCard from "../components/QuestionCard";
 import AnswerResult from "../components/AnswerResult";
 import { getRandomQuestion, submitAnswer, getSections } from "../api/questionApi";
+import { translateQuestion } from "../api/aiApi";
 import { useLanguage } from "../i18n/LanguageContext";
 
 export default function PracticePage() {
@@ -15,10 +16,26 @@ export default function PracticePage() {
   const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [translated, setTranslated] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
 
   useEffect(() => {
     loadSections();
   }, []);
+
+ const buildTranslatableQuestion = () => {
+   if (!question) return null;
+
+   return {
+     question: question.text,
+     options: (question.options || []).map((option, index) => ({
+       letter: ["A", "B", "C", "D"][index] || String(index + 1),
+       text: option.text,
+     })),
+     explanation: result?.explanation || "",
+   };
+ };
 
   const loadSections = async () => {
     try {
@@ -34,6 +51,7 @@ export default function PracticePage() {
       setError("");
       setResult(null);
       setSelectedOptionId(null);
+      setTranslated(null);
 
       const data = await getRandomQuestion(section, sourceType);
       setQuestion(data);
@@ -41,6 +59,28 @@ export default function PracticePage() {
       setQuestion(null);
       setResult(null);
       setError(e?.response?.data?.message || t.loadQuestionError);
+    }
+  };
+
+  const handleTranslate = async () => {
+    const questionToTranslate = buildTranslatableQuestion();
+    if (!questionToTranslate) return;
+
+    try {
+      setIsTranslating(true);
+      setError("");
+      setTranslated(null);
+
+      const data = await translateQuestion({
+        provider: "CLAUDE",
+        question: questionToTranslate,
+      });
+
+      setTranslated(data);
+    } catch (e) {
+      setError(e?.response?.data?.message || "Failed to translate question");
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -91,16 +131,53 @@ export default function PracticePage() {
       </div>
 
       {question && (
-        <QuestionCard
-          question={question}
-          selectedOptionId={selectedOptionId}
-          setSelectedOptionId={setSelectedOptionId}
-          onSubmit={handleSubmit}
-          isAnswered={!!result}
-        />
+        <>
+          <QuestionCard
+            question={question}
+            selectedOptionId={selectedOptionId}
+            setSelectedOptionId={setSelectedOptionId}
+            onSubmit={handleSubmit}
+            isAnswered={!!result}
+          />
+
+          <div className="card compact">
+            <button
+              onClick={handleTranslate}
+              disabled={isTranslating || !question || !!translated}
+            >
+              {isTranslating ? "Translating..." : "Translate to Russian"}
+            </button>
+          </div>
+        </>
       )}
 
       <AnswerResult result={result} onNext={handleNext} />
+
+      {translated && (
+        <div className="card">
+          <div className="badges">
+            <span className="badge blue">RU</span>
+          </div>
+
+          <h3>{translated.question}</h3>
+
+          <div>
+            {translated.options?.map((option) => (
+              <div key={option.letter} className="option">
+                <strong>{option.letter}.</strong> {option.text}
+              </div>
+            ))}
+          </div>
+
+          {translated.explanation && (
+            <div className="spacer-top">
+              <p>
+                <strong>{t.explanation}:</strong> {translated.explanation}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

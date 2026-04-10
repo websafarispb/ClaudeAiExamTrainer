@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
 
   h2:
@@ -24,6 +24,10 @@ spring:
 app:
   questions:
     auto-import: true
+  ai:
+    enabled: true
+    require-admin-token: false
+    admin-token: ""
 
 anthropic:
   api:

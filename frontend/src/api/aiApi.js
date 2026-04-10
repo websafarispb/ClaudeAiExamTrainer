@@ -28,3 +28,18 @@ export const translateQuestion = async (payload) => {
   const response = await api.post("/ai/translate-question", payload);
   return response.data;
 };
+
+export const translatePracticalTask = async (payload) => {
+  const response = await api.post("/ai/translate-practical-task", payload);
+  return response.data;
+};
+
+export const saveGeneratedPracticalTask = async (payload) => {
+  const response = await api.post("/ai/save-generated-practical-task", payload);
+  return response.data;
+};
+
+export const getPracticalTasks = async () => {
+  const response = await api.get("/ai/practical-tasks");
+  return response.data;
+};

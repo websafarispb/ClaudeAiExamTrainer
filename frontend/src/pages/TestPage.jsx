@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSections, getTestQuestions, submitAnswer } from "../api/questionApi";
+import { translateQuestion } from "../api/aiApi";
 import { useLanguage } from "../i18n/LanguageContext";
 
 export default function TestPage() {
@@ -19,10 +20,14 @@ export default function TestPage() {
   const [error, setError] = useState("");
   const [startedAt, setStartedAt] = useState(null);
   const [retryMode, setRetryMode] = useState(false);
+  const [translatedCurrent, setTranslatedCurrent] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     loadSections();
   }, []);
+
+  const currentQuestion = questions[currentIndex];
 
   const loadSections = async () => {
     try {
@@ -31,6 +36,19 @@ export default function TestPage() {
     } catch (e) {
       setError(e?.response?.data?.message || t.loadingSectionsError);
     }
+  };
+
+  const buildCurrentQuestionForTranslation = () => {
+    if (!currentQuestion) return null;
+
+    return {
+      question: currentQuestion.text,
+      options: (currentQuestion.options || []).map((option, index) => ({
+        letter: ["A", "B", "C", "D"][index] || String(index + 1),
+        text: option.text,
+      })),
+      explanation: "",
+    };
   };
 
   const startTest = async () => {
@@ -43,6 +61,8 @@ export default function TestPage() {
       setCurrentIndex(0);
       setSelectedOptionId(null);
       setStartedAt(Date.now());
+      setTranslatedCurrent(null);
+      setIsTranslating(false);
 
       const data = await getTestQuestions(count, section, sourceType);
       setQuestions(data);
@@ -50,8 +70,6 @@ export default function TestPage() {
       setError(e?.response?.data?.message || t.startTestError);
     }
   };
-
-  const currentQuestion = questions[currentIndex];
 
   const handleNext = () => {
     if (!selectedOptionId || !currentQuestion) return;
@@ -73,6 +91,8 @@ export default function TestPage() {
 
     setAnswers(updatedAnswers);
     setSelectedOptionId(null);
+    setTranslatedCurrent(null);
+    setIsTranslating(false);
 
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1);
@@ -133,6 +153,28 @@ export default function TestPage() {
     }
   };
 
+  const handleTranslateCurrent = async () => {
+    const payload = buildCurrentQuestionForTranslation();
+    if (!payload) return;
+
+    try {
+      setIsTranslating(true);
+      setError("");
+      setTranslatedCurrent(null);
+
+      const data = await translateQuestion({
+        provider: "CLAUDE",
+        question: payload,
+      });
+
+      setTranslatedCurrent(data);
+    } catch (e) {
+      setError(e?.response?.data?.message || "Failed to translate question");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const resetTest = () => {
     setQuestions([]);
     setCurrentIndex(0);
@@ -143,6 +185,8 @@ export default function TestPage() {
     setError("");
     setStartedAt(null);
     setRetryMode(false);
+    setTranslatedCurrent(null);
+    setIsTranslating(false);
   };
 
   const retryMistakes = () => {
@@ -163,6 +207,8 @@ export default function TestPage() {
     setError("");
     setStartedAt(Date.now());
     setRetryMode(true);
+    setTranslatedCurrent(null);
+    setIsTranslating(false);
   };
 
   const formatElapsedTime = (ms) => {
@@ -227,57 +273,86 @@ export default function TestPage() {
       )}
 
       {questions.length > 0 && !finished && currentQuestion && (
-        <div className="card">
-          <div className="progress-wrapper">
-            <div className="progress-label">
-              <span>
-                {t.questionProgress} {currentIndex + 1} / {questions.length}
+        <>
+          <div className="card">
+            <div className="progress-wrapper">
+              <div className="progress-label">
+                <span>
+                  {t.questionProgress} {currentIndex + 1} / {questions.length}
+                </span>
+                <span>{progressPercent}% {t.completed}</span>
+              </div>
+
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${(currentIndex / questions.length) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="badges">
+              <span className="badge blue">
+                {t.section}: {currentQuestion.section}
               </span>
-              <span>{progressPercent}% {t.completed}</span>
+              <span className="badge">
+                {t.difficulty}: {currentQuestion.difficulty}
+              </span>
             </div>
 
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{
-                  width: `${(currentIndex / questions.length) * 100}%`,
-                }}
-              />
+            <h3>{currentQuestion.text}</h3>
+
+            <div>
+              {currentQuestion.options.map((opt) => (
+                <div
+                  key={opt.id}
+                  className={`option ${selectedOptionId === opt.id ? "selected" : ""}`}
+                  onClick={() => setSelectedOptionId(opt.id)}
+                >
+                  {opt.text}
+                </div>
+              ))}
             </div>
+
+            <button
+              style={{ marginTop: "16px" }}
+              onClick={handleNext}
+              disabled={!selectedOptionId || isTranslating}
+            >
+              {currentIndex + 1 === questions.length ? t.finishTest : t.next}
+            </button>
+
+            {error && <p style={{ color: "red", marginTop: "12px" }}>{error}</p>}
           </div>
 
+          <div style={{ marginTop: "12px" }}>
+            <button
+              onClick={handleTranslateCurrent}
+              disabled={!currentQuestion || isTranslating || !!translatedCurrent}
+            >
+              {isTranslating ? "Translating..." : "Translate to Russian"}
+            </button>
+          </div>
+        </>
+      )}
+
+      {translatedCurrent && (
+        <div className="card">
           <div className="badges">
-            <span className="badge blue">
-              {t.section}: {currentQuestion.section}
-            </span>
-            <span className="badge">
-              {t.difficulty}: {currentQuestion.difficulty}
-            </span>
+            <span className="badge blue">RU</span>
           </div>
 
-          <h3>{currentQuestion.text}</h3>
+          <h3>{translatedCurrent.question}</h3>
 
           <div>
-            {currentQuestion.options.map((opt) => (
-              <div
-                key={opt.id}
-                className={`option ${selectedOptionId === opt.id ? "selected" : ""}`}
-                onClick={() => setSelectedOptionId(opt.id)}
-              >
-                {opt.text}
+            {translatedCurrent.options?.map((option) => (
+              <div key={option.letter} className="option">
+                <strong>{option.letter}.</strong> {option.text}
               </div>
             ))}
           </div>
-
-          <button
-            style={{ marginTop: "16px" }}
-            onClick={handleNext}
-            disabled={!selectedOptionId}
-          >
-            {currentIndex + 1 === questions.length ? t.finishTest : t.next}
-          </button>
-
-          {error && <p style={{ color: "red", marginTop: "12px" }}>{error}</p>}
         </div>
       )}
 
