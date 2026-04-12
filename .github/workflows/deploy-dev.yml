@@ -20,8 +20,7 @@ jobs:
           java-version: 17
 
       - name: Run backend tests
-        working-directory: backend
-        run: ./mvnw test
+        run: mvn -f backend/pom.xml test
 
   verify-frontend:
     runs-on: ubuntu-latest
