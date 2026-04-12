@@ -75,3 +75,93 @@ docker run -p 8080:8080 ai-exam-backend
 
 docker-compose up --build
 docker-compose down
+
+
+chmod 400 ~/Downloads/ai-exam-trainer-dev.pem
+ssh -i ~/Downloads/ai-exam-trainer-dev.pem ec2-user@13.49.125.103
+
+EC2 setup cheat sheet
+1. Создать EC2 instance
+
+Параметры:
+
+AMI: Amazon Linux 2023
+Instance type: t3.micro или t3.small
+Key pair: создать новый .pem
+Storage: 16 GB
+Security Group:
+22 SSH — только с моего IP
+80 HTTP — открыть наружу
+
+После запуска сохранить:
+
+Public IP
+key file .pem
+2. Подключиться к серверу
+
+На Mac:
+
+chmod 400 ~/Downloads/ai-exam-trainer-dev.pem
+ssh -i ~/Downloads/ai-exam-trainer-dev.pem ec2-user@<EC2_PUBLIC_IP>
+
+Пример:
+
+ssh -i ~/Downloads/ai-exam-trainer-dev.pem ec2-user@13.49.125.103
+3. Установить Docker и git
+
+На сервере:
+
+sudo yum update -y
+sudo yum install -y docker git
+sudo service docker start
+sudo usermod -aG docker ec2-user
+4. Установить Docker Compose
+
+Если пакет docker-compose-plugin не находится через yum, установить вручную:
+
+mkdir -p ~/.docker/cli-plugins
+
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+-o ~/.docker/cli-plugins/docker-compose
+
+chmod +x ~/.docker/cli-plugins/docker-compose
+5. Перелогиниться
+
+После добавления пользователя в группу docker:
+
+exit
+
+И снова подключиться:
+
+ssh -i ~/Downloads/ai-exam-trainer-dev.pem ec2-user@<EC2_PUBLIC_IP>
+6. Проверить, что всё установлено
+   docker --version
+   docker compose version
+   git --version
+   docker ps
+
+7. Что сделать на сервере
+
+Поставь Buildx вручную:
+
+mkdir -p ~/.docker/cli-plugins
+
+curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 \
+-o ~/.docker/cli-plugins/docker-buildx
+
+chmod +x ~/.docker/cli-plugins/docker-buildx
+
+docker buildx version
+docker buildx create --use --name mybuilder
+docker buildx inspect --bootstrap
+
+
+
+on server after
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+
