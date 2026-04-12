@@ -44,29 +44,38 @@ public class AiController {
   }
 
   @PostMapping("/generate-and-save-question")
-  public QuestionResponseDto generateAndSaveQuestion(@RequestBody GenerateQuestionRequestDto request) {
+  public QuestionResponseDto generateAndSaveQuestion(
+      @RequestBody GenerateQuestionRequestDto request,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.generateAndSaveQuestion(request);
   }
 
   @PostMapping("/generate-practical-task")
   public GeneratePracticalTaskResponseDto generatePracticalTask(
-      @RequestBody GeneratePracticalTaskRequestDto request) {
+      @RequestBody GeneratePracticalTaskRequestDto request,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.generatePracticalTask(request);
   }
 
   @PostMapping("/translate-question")
   public TranslateQuestionResponseDto translateQuestion(
-      @RequestBody TranslateQuestionRequestDto request) {
+      @RequestBody TranslateQuestionRequestDto request,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.translateQuestion(request);
   }
 
   @PostMapping("/translate-practical-task")
   public TranslatePracticalTaskResponseDto translatePracticalTask(
-      @RequestBody TranslatePracticalTaskRequestDto request) {
+      @RequestBody TranslatePracticalTaskRequestDto request,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.translatePracticalTask(request);
   }
 

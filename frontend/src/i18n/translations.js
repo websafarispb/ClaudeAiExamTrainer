@@ -1,7 +1,7 @@
 export const translations = {
   EN: {
     appTitle: "AI Exam Trainer",
-    mvp: "MVP",
+    mvp: "DEV",
 
     navPractice: "Practice",
     navMiniTest: "Mini Test",
@@ -98,7 +98,7 @@ export const translations = {
 
   RU: {
     appTitle: "Тренажёр AI Экзамена",
-    mvp: "MVP",
+    mvp: "ДЕВ",
 
     navPractice: "Практика",
     navMiniTest: "Мини-тест",
