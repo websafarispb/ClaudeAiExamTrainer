@@ -1,15 +1,15 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: AiExamTrainerApplication
 
-  server:
-    port: 8080
-
   datasource:
-    url: jdbc:h2:mem:aiexamdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:aiexamdb}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
 
   jpa:
     hibernate:
@@ -28,9 +28,9 @@ app:
   questions:
     auto-import: true
   ai:
-    enabled: true
-    require-admin-token: false
-    admin-token: ""
+    enabled: ${APP_AI_ENABLED:true}
+    require-admin-token: ${APP_AI_REQUIRE_ADMIN_TOKEN:false}
+    admin-token: ${APP_AI_ADMIN_TOKEN:}
 
 anthropic:
   api:
@@ -38,3 +38,9 @@ anthropic:
     url: https://api.anthropic.com/v1/messages
     model: claude-sonnet-4-6
     version: 2023-06-01
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY:}
+    url: https://api.openai.com/v1/chat/completions
+    model: gpt-4.1-mini

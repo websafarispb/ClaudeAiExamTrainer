@@ -165,3 +165,22 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 
+1. Посмотреть контейнер БД
+   docker ps
+
+Найди ai-exam-db.
+
+2. Зайти внутрь
+   docker exec -it ai-exam-db psql -U aiexam -d aiexamdb
+3. Проверить таблицы
+   \dt
+4. Посмотреть количество записей
+
+Например:
+
+select count(*) from questions;
+select count(*) from practical_task;
+5. Выйти
+   \q
+
+

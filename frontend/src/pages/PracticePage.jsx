@@ -18,6 +18,7 @@ export default function PracticePage() {
   const [error, setError] = useState("");
   const [translated, setTranslated] = useState(null);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [provider, setProvider] = useState("CLAUDE");
 
 
   useEffect(() => {
@@ -72,13 +73,21 @@ export default function PracticePage() {
       setTranslated(null);
 
       const data = await translateQuestion({
-        provider: "CLAUDE",
+        provider,
         question: questionToTranslate,
       });
 
       setTranslated(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to translate question");
+      if (e?.response?.status === 429) {
+        setError(e.response.data?.message || "AI quota exceeded. Switch to Claude.");
+      } else if (e?.response?.status === 401) {
+        setError(e.response.data?.message || "API key is invalid or missing.");
+      } else if (!e?.response) {
+        setError("Network error. Check your internet connection and try again.");
+      } else {
+        setError(e?.response?.data?.message || "Failed to translate question");
+      }
     } finally {
       setIsTranslating(false);
     }
@@ -128,6 +137,34 @@ export default function PracticePage() {
             {error}
           </p>
         )}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          margin: "12px 0 16px 0",
+        }}
+      >
+        <label style={{ fontSize: "14px", color: "#333" }}>
+          Translate provider:
+        </label>
+
+        <select
+          value={provider}
+          onChange={(e) => setProvider(e.target.value)}
+          style={{
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            background: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          <option value="CLAUDE">Claude</option>
+          <option value="CHATGPT">ChatGPT</option>
+        </select>
       </div>
 
       {question && (

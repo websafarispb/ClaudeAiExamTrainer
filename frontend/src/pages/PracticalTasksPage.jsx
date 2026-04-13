@@ -86,7 +86,15 @@ export default function PracticalTasksPage() {
 
       setTask(data);
     } catch (e) {
-      setError(e?.response?.data?.message || t.generatePracticalTaskError);
+      if (e?.response?.status === 429) {
+        setError(e.response.data?.message || "ChatGPT quota exceeded. Please switch to Claude.");
+      } else if (e?.response?.status === 401) {
+        setError(e.response.data?.message || "OpenAI API key is invalid or missing.");
+      } else if (!e?.response) {
+        setError("Network error. Check your internet connection and try again.");
+      } else {
+        setError(e?.response?.data?.message || "Failed to generate practical task");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -107,7 +115,15 @@ export default function PracticalTasksPage() {
 
       setTranslated(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to translate practical task");
+      if (e?.response?.status === 429) {
+        setError(e.response.data?.message || "ChatGPT quota exceeded. Please switch to Claude.");
+      } else if (e?.response?.status === 401) {
+        setError(e.response.data?.message || "OpenAI API key is invalid or missing.");
+      } else if (!e?.response) {
+        setError("Network error. Check your internet connection and try again.");
+      } else {
+        setError(e?.response?.data?.message || "Failed to translate practical task");
+      }
     } finally {
       setIsTranslating(false);
     }

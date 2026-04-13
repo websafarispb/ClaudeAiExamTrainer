@@ -2,9 +2,10 @@ package com.exam.aiexamtrainer.service.impl;
 
 import com.exam.aiexamtrainer.enums.LlmProvider;
 import com.exam.aiexamtrainer.service.LlmClient;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ChatGptStubLlmClient implements LlmClient {
 
   @Override

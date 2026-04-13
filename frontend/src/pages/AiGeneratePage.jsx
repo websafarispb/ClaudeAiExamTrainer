@@ -34,10 +34,19 @@ export default function AiGeneratePage() {
     setIsGenerating(true);
 
     try {
-      const data = await generateQuestion(payload);
-      setGenerated(data);
-    } catch (e) {
-      setError(e?.response?.data?.message || t.generateQuestionError);
+      const result = await generateQuestion(payload);
+      setGenerated(result);
+      setError("");
+    } catch (error) {
+      if (error?.response?.status === 429) {
+        setError(error.response.data?.message || "ChatGPT quota exceeded. Please switch to Claude.");
+      } else if (error?.response?.status === 401) {
+        setError(error.response.data?.message || "OpenAI API key is invalid or missing.");
+      } else if (!error?.response) {
+        setError("Network error. Check your internet connection and try again.");
+      } else {
+        setError(error.response.data?.message || "Failed to generate question.");
+      }
     } finally {
       setIsGenerating(false);
     }

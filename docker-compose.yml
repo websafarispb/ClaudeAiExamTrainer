@@ -1,11 +1,29 @@
 services:
+  db:
+    image: postgres:16
+    container_name: ai-exam-db
+    environment:
+      POSTGRES_DB: aiexamdb
+      POSTGRES_USER: aiexam
+      POSTGRES_PASSWORD: aiexam
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
     container_name: ai-exam-backend
+    depends_on:
+      - db
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/aiexamdb
+      SPRING_DATASOURCE_USERNAME: aiexam
+      SPRING_DATASOURCE_PASSWORD: aiexam
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
       APP_AI_ENABLED: ${APP_AI_ENABLED:-true}
       APP_AI_REQUIRE_ADMIN_TOKEN: ${APP_AI_REQUIRE_ADMIN_TOKEN:-false}
       APP_AI_ADMIN_TOKEN: ${APP_AI_ADMIN_TOKEN:-}
@@ -20,3 +38,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:
