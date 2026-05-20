@@ -18,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class OpenAiLlmClient implements LlmClient {
 
   private final OpenAiProperties openAiProperties;
-  private final RestClient restClient = RestClient.builder().build();
+  private final RestClient restClient;
 
   @Override
   public LlmProvider getProvider() {
