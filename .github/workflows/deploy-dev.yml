@@ -72,6 +72,7 @@ jobs:
 
             printf "ANTHROPIC_API_KEY=%s\nAPP_AI_ENABLED=%s\nAPP_AI_REQUIRE_ADMIN_TOKEN=%s\nAPP_AI_ADMIN_TOKEN=%s\n" \
               "${{ secrets.ANTHROPIC_API_KEY }}" \
+              "${{ secrets.OPENAI_API_KEY }}" \
               "${{ vars.APP_AI_ENABLED }}" \
               "${{ vars.APP_AI_REQUIRE_ADMIN_TOKEN }}" \
               "${{ secrets.APP_AI_ADMIN_TOKEN }}" > .env
