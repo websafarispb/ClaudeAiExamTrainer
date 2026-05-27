@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class QuestionImportServiceImpl implements QuestionImportService {
   private final ObjectMapper objectMapper;
   private final QuestionRepository questionRepository;
 
+  @Transactional
   @Override
   public int importQuestions() {
 
