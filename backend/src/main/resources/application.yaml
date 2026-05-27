@@ -13,12 +13,12 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
 
   h2:
     console:
-      enabled: true
+      enabled: false
 
   flyway:
     enabled: true

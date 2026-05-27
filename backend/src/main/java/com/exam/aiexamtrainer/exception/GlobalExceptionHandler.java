@@ -1,10 +1,11 @@
 package com.exam.aiexamtrainer.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -13,38 +14,47 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> handleNotFound(NotFoundException ex) {
 
-    return Map.of(
-        "timestamp", LocalDateTime.now()
-            .toString(),
-        "status", 404,
-        "error", "Not Found",
-        "message", ex.getMessage()
-    );
+    return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
   }
 
   @ExceptionHandler(BadRequestException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Map<String, Object> handleBadRequest(BadRequestException ex) {
 
-    return Map.of(
-        "timestamp", LocalDateTime.now()
-            .toString(),
-        "status", 400,
-        "error", "Bad Request",
-        "message", ex.getMessage()
-    );
+    return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
   }
 
   @ExceptionHandler(DuplicateQuestionException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
   public Map<String, Object> handleDuplicateQuestion(DuplicateQuestionException ex) {
 
+    return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
+
+    HttpStatus status = HttpStatus.valueOf(ex.getStatusCode()
+        .value());
+    return ResponseEntity.status(status)
+        .body(buildErrorResponse(status, ex.getReason()));
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public Map<String, Object> handleUnexpected(Exception ex) {
+
+    return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
+  }
+
+  private Map<String, Object> buildErrorResponse(HttpStatus status, String message) {
+
     return Map.of(
         "timestamp", LocalDateTime.now()
             .toString(),
-        "status", 409,
-        "error", "Conflict",
-        "message", ex.getMessage()
+        "status", status.value(),
+        "error", status.getReasonPhrase(),
+        "message", message == null ? status.getReasonPhrase() : message
     );
   }
 }

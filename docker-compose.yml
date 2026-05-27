@@ -8,6 +8,11 @@ services:
       POSTGRES_PASSWORD: aiexam
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U aiexam -d aiexamdb" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
   backend:
@@ -15,7 +20,8 @@ services:
       context: ./backend
     container_name: ai-exam-backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/aiexamdb

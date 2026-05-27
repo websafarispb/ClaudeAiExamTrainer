@@ -149,8 +149,8 @@ public class AiQuestionGenerationServiceImpl implements AiQuestionGenerationServ
     String rawResponse = client.generate(systemPrompt, userPrompt);
 
     try {
-      System.out.println("RAW PRACTICAL TASK TRANSLATION RESPONSE:");
-      System.out.println(rawResponse);
+      log.debug("RAW PRACTICAL TASK TRANSLATION RESPONSE:");
+      log.debug(rawResponse);
       TranslatePracticalTaskResponseDto response =
           objectMapper.readValue(rawResponse, TranslatePracticalTaskResponseDto.class);
 

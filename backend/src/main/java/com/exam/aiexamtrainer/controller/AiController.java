@@ -43,8 +43,10 @@ public class AiController {
 
   @PostMapping("/save-generated-question")
   public QuestionResponseDto saveGeneratedQuestion(
-      @RequestBody GenerateQuestionResponseDto generatedQuestion) {
+      @RequestBody GenerateQuestionResponseDto generatedQuestion,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.saveGeneratedQuestion(generatedQuestion);
   }
 
@@ -94,8 +96,10 @@ public class AiController {
 
   @PostMapping("/save-generated-practical-task")
   public PracticalTaskResponseDto saveGeneratedPracticalTask(
-      @RequestBody GeneratePracticalTaskResponseDto task) {
+      @RequestBody GeneratePracticalTaskResponseDto task,
+      HttpServletRequest httpRequest) {
 
+    ensureAiAccess(httpRequest);
     return aiQuestionGenerationService.saveGeneratedPracticalTask(task);
   }
 
