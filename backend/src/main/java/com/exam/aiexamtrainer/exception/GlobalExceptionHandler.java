@@ -3,6 +3,7 @@ package com.exam.aiexamtrainer.exception;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,12 +32,12 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(ResponseStatusException.class)
-  @ResponseStatus
-  public Map<String, Object> handleResponseStatus(ResponseStatusException ex) {
+  public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
 
     HttpStatus status = HttpStatus.valueOf(ex.getStatusCode()
         .value());
-    return buildErrorResponse(status, ex.getReason());
+    return ResponseEntity.status(status)
+        .body(buildErrorResponse(status, ex.getReason()));
   }
 
   @ExceptionHandler(Exception.class)
