@@ -33,6 +33,14 @@ public class QuestionController {
     return questionService.getRandomQuestion(section, sourceType);
   }
 
+  @GetMapping("/practice")
+  public List<QuestionResponseDto> getPracticeQuestions(
+      @RequestParam(required = false) String section,
+      @RequestParam(required = false) String sourceType) {
+
+    return questionService.getPracticeQuestions(section, sourceType);
+  }
+
   @GetMapping("/{id}")
   public QuestionResponseDto getQuestionById(@PathVariable Long id) {
 

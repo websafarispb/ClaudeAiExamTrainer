@@ -15,4 +15,6 @@ public interface QuestionService {
   SubmitAnswerResponseDto submitAnswer(Long questionId, Long selectedOptionId);
 
   List<String> getSections();
+
+  List<QuestionResponseDto> getPracticeQuestions(String section, String sourceType);
 }

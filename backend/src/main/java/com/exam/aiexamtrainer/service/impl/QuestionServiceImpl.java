@@ -29,6 +29,22 @@ public class QuestionServiceImpl implements QuestionService {
   private final Random random = new Random();
 
   @Override
+  public List<QuestionResponseDto> getPracticeQuestions(String section, String sourceType) {
+
+    List<Question> questions = findQuestions(section, sourceType);
+
+    if (questions.isEmpty()) {
+      throw new NotFoundException("No questions found for provided filters");
+    }
+
+    Collections.shuffle(questions);
+
+    return questions.stream()
+        .map(questionMapper::toDto)
+        .toList();
+  }
+
+  @Override
   public QuestionResponseDto getRandomQuestion(String section, String sourceType) {
 
     List<Question> questions = findQuestions(section, sourceType);
