@@ -30,3 +30,12 @@ export const getTestQuestions = async (count, section, sourceType) => {
   const response = await api.get("/questions/test", { params });
   return response.data;
 };
+
+export const getPracticeQuestions = async (section, sourceType) => {
+  const params = {};
+  if (section) params.section = section;
+  if (sourceType) params.sourceType = sourceType;
+
+  const response = await api.get("/questions/practice", { params });
+  return response.data;
+};
