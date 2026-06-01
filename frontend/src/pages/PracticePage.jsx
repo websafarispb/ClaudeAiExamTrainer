@@ -27,6 +27,7 @@ export default function PracticePage() {
   const [correctCount, setCorrectCount] = useState(0);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [wrongQuestions, setWrongQuestions] = useState([]);
 
   const question = questions[currentIndex] || null;
 
@@ -61,6 +62,7 @@ export default function PracticePage() {
       setCorrectCount(0);
       setAnsweredCount(0);
       setIsFinished(false);
+      setWrongQuestions([]);
 
       const data = await getPracticeQuestions(section, sourceType);
       setQuestions(data);
@@ -127,6 +129,8 @@ export default function PracticePage() {
 
       if (data.correct) {
         setCorrectCount((prev) => prev + 1);
+      } else {
+        setWrongQuestions((prev) => [...prev, question]);
       }
     } catch (e) {
       setError(e?.response?.data?.message || t.submitAnswerError);
@@ -144,6 +148,27 @@ export default function PracticePage() {
     }
 
     setCurrentIndex((prev) => prev + 1);
+  };
+
+  const retryWrongQuestions = () => {
+    if (wrongQuestions.length === 0) {
+      return;
+    }
+
+    setQuestions(wrongQuestions);
+
+    setCurrentIndex(0);
+
+    setCorrectCount(0);
+    setAnsweredCount(0);
+
+    setSelectedOptionId(null);
+    setResult(null);
+    setTranslated(null);
+
+    setIsFinished(false);
+
+    setWrongQuestions([]);
   };
 
   return (
@@ -198,6 +223,15 @@ export default function PracticePage() {
           <p>Exam-style score: {examScore} / 1000</p>
 
           <button onClick={startPractice}>Restart practice</button>
+
+          {wrongQuestions.length > 0 && (
+            <button
+              onClick={retryWrongQuestions}
+              style={{ marginLeft: "10px" }}
+            >
+              Retry wrong answers ({wrongQuestions.length})
+            </button>
+          )}
         </div>
       )}
 
